@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, setDoc, getFirestore, collection, addDoc } from "firebase/firestore"; 
+import { doc, getDocs, getFirestore, collection, addDoc } from "firebase/firestore"; 
 
 
 
@@ -28,7 +28,12 @@ const auth = initializeAuth(app, {
 const db = getFirestore(app);
 
 
-
+export const getQuizData = async () => {
+  const qs = collection(db, "questions")
+  const qSnap = await getDocs(qs);
+  const qList = qSnap.docs.map(doc => doc.data());
+  return qList;
+}
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
