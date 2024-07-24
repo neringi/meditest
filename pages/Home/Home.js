@@ -10,8 +10,9 @@ import * as Progress from 'react-native-progress';
 
 
 
-export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
-  const { userid } = route.params;
+export default function Home({ route, navigation, loggedIn, setLoggedIn, userid }) {
+  console.log("HOME", loggedIn)
+  console.log("route", route)
   const [experience, setExperience] = useState(0);
   const [level, setLevel] = useState(0);
   const [categoryId, setCategoryId] = useState('');

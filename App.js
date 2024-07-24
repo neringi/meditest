@@ -3,7 +3,7 @@ import { TextInput, Button, StyleSheet, Text, View, TouchableOpacity } from 'rea
 // import { register, login, logout } from './auth_google.js';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { db } from './firebaseConfig.js'
+import { db, auth } from './firebaseConfig.js'
 import { doc, getDoc } from "firebase/firestore";
 import { useNavigation } from '@react-navigation/native';
 import { NavigationContainer } from '@react-navigation/native';
@@ -20,29 +20,61 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
-  // const [username, setUsername] = useState('');
-  // const [userid, setUserid] = useState('');
-  
+  const [userid, setUserId] = useState('');
 
-  console.log(loggedIn);
-  // const getData = async () => {
-  //   try{
-  //     console.log("userid: ")
-  //     // const docRef = doc(db, "users", userid);
-  //     // const docSnap = await getDoc(docRef);
+  useEffect(() => {
+    const importData = async () => {
+      try {
+        const keys = await AsyncStorage.getAllKeys();
+        const userFound = keys.find((item) =>
+          item.includes("firebase:authUser:")
+        );
+        console.log("USER FOUND", userFound)
+        if (userFound) {
+          const result = await AsyncStorage.getItem(userFound);
+          const user = JSON.parse(result);
+          if (user.uid) {
+            console.log("LOGGED IN")
+            setLoggedIn(true);
+            setUserId(user.uid);
+          }
+        }
+        // console.log("_______KEYS");
+        // console.log(keys);
+        // const result = await AsyncStorage.multiGet(keys);
+        // console.log("_______");
+        // console.log(result);
+        // return result.map(req => JSON.parsex(req)).forEach(console.log);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    importData();
+    console.log(userid)
+  }, []);
 
-  //     // if (docSnap.exists()) {
-  //     //   console.log("Document data:", docSnap.data());
-  //     // } else {
-  //     //   // docSnap.data() will be undefined in this case
-  //     //   console.log("No such document!");
-  //     // }
-  //   } catch(err){
-  //     console.error(err);
-  //   }
-  // };
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      console.log('User is authenticated:', user.uid);
+      setLoggedIn(true);
+      setUserId(user.uid);
+      console.log('userid:',user.uid)
+    } else {
+      console.log('User is not authenticated');
+      setLoggedIn(false);
+      setUserId('');
+    }
+  });
+
+    return (
+      <NavigationContainer>
+        <StackNavigator loggedIn={loggedIn} setLoggedIn={setLoggedIn} userid={userid} />
+      </NavigationContainer>
+    );
+
+  }
+
 
   // const handleLogin = async () => {
   //       // console.log('Email:', email);
@@ -51,11 +83,11 @@ export default function App() {
   //         // const user = await login(email,password)
   //         console.log('User logged in:')
           
-  //         // if (user !== undefined) {
-  //         //   setLoggedIn(true)
-  //         //   setUserid(user.uid)
-  //         //   // navigation.navigate('HomeScreen', { userid });
-  //         // }
+          // if (user !== undefined) {
+          //   setLoggedIn(true)
+          //   setUserId(user.uid)
+          //   // navigation.navigate('HomeScreen', { userid });
+          // }
   //       } catch(err){
   //         console.error(err);
   //       }
@@ -66,14 +98,9 @@ export default function App() {
   //   // logout()
   //   // setLoggedIn(false)
   // };
-  // if (loggedIn){
-    return (
-      <NavigationContainer>
-        <StackNavigator loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
-      </NavigationContainer>
-    );
+
   
-}
+
 // // console.log('db', db)
 
 // export default function App({ }) {
@@ -81,7 +108,7 @@ export default function App() {
 //   const [email, setEmail] = useState('');
 //   const [password, setPassword] = useState('');
 //   const [username, setUsername] = useState('');
-//   const [userid, setUserid] = useState('');
+//   const [userid, setUserId] = useState('');
 
 //   const navigation = useNavigation();
 //   // const [signupEmail, setSignupEmail] = useState('');
@@ -115,7 +142,7 @@ export default function App() {
       
 //       if (user !== undefined) {
 //         setLoggedIn(true)
-//         setUserid(user.uid)
+//         setUserId(user.uid)
 //         // navigation.navigate('HomeScreen', { userid });
 //       }
 //     } catch(err){
@@ -147,7 +174,7 @@ export default function App() {
 //         const user = JSON.parse(result)
 //         if (user.uid){
 //           setLoggedIn(true)
-//           setUserid(user.uid)
+//           setUserId(user.uid)
 //         }
 //       }
 //       console.log("_______KEYS")
