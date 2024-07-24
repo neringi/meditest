@@ -20,10 +20,10 @@ const Stack = createStackNavigator();
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false)
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
-  const [userid, setUserid] = useState('');
+  // const [email, setEmail] = useState('');
+  // const [password, setPassword] = useState('');
+  // const [username, setUsername] = useState('');
+  // const [userid, setUserid] = useState('');
   
 
   console.log(loggedIn);

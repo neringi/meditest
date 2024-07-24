@@ -15,7 +15,7 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId }) => {
     {/* LOGIN */}
       <Stack.Screen 
         name="Login"
-        options={{ headerShown: false }} // Optional: Hide header if not needed
+        options={{ headerShown: false }} 
       >
         {(props) => (
           <LoginPage {...props} loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
@@ -27,7 +27,7 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId }) => {
       {/* <Stack.Screen name="Signup" component={SignupPage} /> */}
       <Stack.Screen 
         name="Signup"
-        options={{ headerShown: false }} // Optional: Hide header if not needed
+        options={{ headerShown: false }} 
       >
         {(props) => (
           <SignupPage {...props} loggedIn={loggedIn} setLoggedIn={setLoggedIn} />
@@ -39,7 +39,7 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId }) => {
       {/* <Stack.Screen name="Home" component={HomePage} /> */}
       <Stack.Screen 
         name="Home"
-        options={{ headerShown: false }} // Optional: Hide header if not needed
+        options={{ headerShown: false }} 
       >
         {(props) => (
           <HomePage {...props} loggedIn={loggedIn} categoryId = {categoryId}/>
@@ -50,7 +50,7 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId }) => {
     {/* QUIZ */}
       <Stack.Screen 
         name="Quiz"
-        options={{ headerShown: false }} // Optional: Hide header if not needed
+        options={{ headerShown: false }} 
       >
         {(props) => (
           <QuizPage {...props} loggedIn={loggedIn} categoryId = {categoryId}  />

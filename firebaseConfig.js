@@ -27,14 +27,22 @@ const auth = initializeAuth(app, {
 // const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
+auth.onAuthStateChanged(user => {
+  if (user) {
+    console.log('User is authenticated:', user.uid);
+  } else {
+    console.log('User is not authenticated');
+  }
+});
 
-export const getQuizData = async () => {
+export const getQuizData = async (categoryId) => {
   const qs = collection(db, "questions")
   const qSnap = await getDocs(qs);
   const qList = qSnap.docs.map(doc => doc.data());
-  return qList;
+  // return qList;
+  return qList.filter(question => question.category_id === categoryId);
 }
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db}
+module.exports = {app, auth, db, getQuizData}

@@ -14,6 +14,7 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
   const { userid } = route.params;
   const [experience, setExperience] = useState(0);
   const [level, setLevel] = useState(0);
+  const [categoryId, setCategoryId] = useState('');
 
   useEffect(() => {
     const getUserData = async () => {
@@ -40,6 +41,16 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
   getUserData();
   }, [userid]);
 
+
+
+  useEffect(() => {
+    console.log('useEffect triggered with categoryId:', categoryId);
+    if (categoryId) {
+      console.log('category:', categoryId);
+      navigation.navigate('Quiz', { categoryId: categoryId });
+    }
+  }, [categoryId, navigation]);
+
   const handleLogout = () => {
     logout()
     setLoggedIn(false)
@@ -49,7 +60,10 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
 
   const navigateToQuiz = (categoryId) => {
     console.log("quiz starting...")
-    navigation.navigate('Quiz', { categoryId: categoryId});
+    console.log('setting categoryid', categoryId)
+    setCategoryId(categoryId);
+    console.log(categoryId)
+    // navigation.navigate('Quiz', { categoryId: categoryId});
   }
 
   const expToNextLevel = 100; 
@@ -113,13 +127,31 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
         <Text style={styles.categoryTitle}>Surgery Terms</Text>
       </TouchableOpacity>
 
-      {/* ABBREVIATIONS */}
+      {/* EASY ABBREVIATIONS */}
       <TouchableOpacity
         style={styles.category}
         // onPress={() => navigation.navigate('Quiz', {category: 'A'})}
-        onPress={() => navigateToQuiz('A')}
+        onPress={() => navigateToQuiz('EA')}
       >
-        <Text style={styles.categoryTitle}>Abbreviations</Text>
+        <Text style={styles.categoryTitle}>Easy Abbreviations</Text>
+      </TouchableOpacity>
+
+       {/* MEDIUM ABBREVIATIONS */}
+       <TouchableOpacity
+        style={styles.category}
+        // onPress={() => navigation.navigate('Quiz', {category: 'A'})}
+        onPress={() => navigateToQuiz('MA')}
+      >
+        <Text style={styles.categoryTitle}> Abbreviations</Text>
+      </TouchableOpacity>
+
+      {/* DIFFICULT ABBREVIATIONS */}
+      <TouchableOpacity
+        style={styles.category}
+        // onPress={() => navigation.navigate('Quiz', {category: 'A'})}
+        onPress={() => navigateToQuiz('DA')}
+      >
+        <Text style={styles.categoryTitle}> Difficult Abbreviations</Text>
       </TouchableOpacity>
 
     </View>
