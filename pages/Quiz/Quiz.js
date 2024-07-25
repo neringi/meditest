@@ -4,20 +4,25 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 // import { createTables, getQuestionsByCategory } from '../../db';
 // import { syncQuestionsFromFirebase } from '../../syncService';
-import { getQuizData } from '../../firebaseConfig.js'
+import { getQuizData, updateUserExperience } from '../../firebaseConfig.js'
 
-
+const difficultyPoints = {
+    '1': 10,
+    '2': 20,
+    '3': 30,
+  };
+  
 
 export default function Quiz({ navigation, route, userid  }) {
-    const { categoryId, user } = route.params;
-
+    const { categoryId } = route.params;
+    console.log('user taking quiz', userid)
     const [quizData, setQuizData] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState({});
     const [score, setScore] = useState(0);
     const [showResults, setShowResults] = useState(false);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answerSubmitted, setAnswerSubmitted] = useState(false);
-    const [showHint, setShowHint] = useState(false);
+    const [hintUsed, setHintUsed] = useState(false);
 
     useEffect(() => {
         const fetchQuizData = async () => {
@@ -31,6 +36,7 @@ export default function Quiz({ navigation, route, userid  }) {
 
         fetchQuizData();
     }, [categoryId]);
+
 
     // console.log('category at quiz:',categoryId)
     // console.log(getQuizData(categoryId))
@@ -46,6 +52,19 @@ export default function Quiz({ navigation, route, userid  }) {
 
         if (selectedOption === currentQuestion.correct) {
             setScore(prev => prev + 1);
+            
+            // Debug log for difficulty_id
+            console.log('Difficulty ID:', currentQuestion.difficulty_id);
+
+
+            const baseExperiencePoints = difficultyPoints[currentQuestion.difficulty_id] || 0;
+
+            console.log(baseExperiencePoints)
+            const experiencePoints = hintUsed ? baseExperiencePoints / 2 : baseExperiencePoints;
+            console.log(`Correct answer! Adding ${experiencePoints} experience points.`);
+            
+            updateUserExperience(userid, experiencePoints);
+
             handleNextQuestion();
         } else {
             Alert.alert("Incorrect", currentQuestion.explanation,
@@ -65,6 +84,7 @@ export default function Quiz({ navigation, route, userid  }) {
     const handleShowHint = () => {
         const currentQuestion = quizData[currentQuestionIndex];
         Alert.alert("Hint", currentQuestion.hint);
+        setHintUsed(true);
     };
 
     const navigateHome = () => {
@@ -73,6 +93,7 @@ export default function Quiz({ navigation, route, userid  }) {
 
     const handleNextQuestion = () => {
         setAnswerSubmitted(false);
+        setHintUsed(false);
 
         if (currentQuestionIndex < quizData.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);

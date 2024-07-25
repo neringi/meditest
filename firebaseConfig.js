@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getDocs, getFirestore, collection, addDoc } from "firebase/firestore"; 
+import { doc, getDocs, getFirestore, collection, addDoc, runTransaction } from "firebase/firestore"; 
 
 
 
@@ -43,6 +43,31 @@ export const getQuizData = async (categoryId) => {
   return qList.filter(question => question.category_id === categoryId);
 }
 
+export const updateUserExperience = async (userId, experiencePoints) => {
+  try {
+    const userRef = doc(db, 'users', userId);
+    await runTransaction(db, async (transaction) => {
+      const userDoc = await transaction.get(userRef);
+      
+      if (!userDoc.exists()) {
+        throw new Error("User does not exist!");
+      }
+
+      const currentExperience = userDoc.data().experience || 0;
+      const newExperience = currentExperience + experiencePoints;
+
+      console.log(`Updating experience for user ${userId}: ${currentExperience} + ${experiencePoints} = ${newExperience}`);
+
+      transaction.update(userRef, { experience: newExperience });
+    });
+    console.log('User experience updated successfully.');
+  } catch (error) {
+    console.error("Error updating user experience:", error);
+  }
+};
+
+
+
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db, getQuizData}
+module.exports = {app, auth, db, getQuizData, updateUserExperience}

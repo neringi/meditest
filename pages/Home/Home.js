@@ -3,7 +3,7 @@ import React, { useEffect, useState }  from 'react';
 import { View, Text, TouchableOpacity, Button, StatusBar, StyleSheet } from 'react-native';
 import { logout } from '../../auth_google.js';
 import { doc, getDoc } from "firebase/firestore";
-import { db } from '../../firebaseConfig.js';
+import { db, updateUserExperience } from '../../firebaseConfig.js';
 import * as Progress from 'react-native-progress';
 
 
