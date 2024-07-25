@@ -52,11 +52,11 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
     }
   }, [categoryId, navigation]);
 
-  const handleLogout = () => {
-    logout()
-    setLoggedIn(false)
-    navigation.navigate('Login');
-  };
+  // const handleLogout = () => {
+  //   logout()
+  //   setLoggedIn(false)
+  //   navigation.navigate('Login');
+  // };
 
 
   const navigateToQuiz = (categoryId) => {
@@ -64,7 +64,7 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
     console.log('setting categoryid', categoryId)
     setCategoryId(categoryId);
     console.log(categoryId)
-    // navigation.navigate('Quiz', { categoryId: categoryId});
+    navigation.navigate('Quiz', { categoryId: categoryId});
   }
 
   const expToNextLevel = 100; 

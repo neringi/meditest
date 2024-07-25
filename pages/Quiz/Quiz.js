@@ -107,6 +107,18 @@ export default function Quiz({ navigation, route, userid  }) {
 
     return (
         <View style={styles.container}>
+            <View style={styles.progressContainer}>
+                {quizData.map((question, index) => (
+                    <View
+                        key={index}
+                        style={[
+                            styles.progressDot,
+                            currentQuestionIndex === index && styles.activeProgressDot
+                        ]}
+                    />
+                ))}
+            </View>
+
             <View style={styles.hintContainer}>
                 <Button title="Hint" onPress={handleShowHint} />
             </View>
@@ -135,6 +147,20 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    progressContainer: {
+        flexDirection: 'row',
+        marginBottom: 20,
+    },
+    progressDot: {
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+        backgroundColor: 'lightgray',
+        marginHorizontal: 5,
+    },
+    activeProgressDot: {
+        backgroundColor: '#00aeef',
     },
     hintContainer: {
         marginBottom: 10,
