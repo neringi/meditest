@@ -6,12 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 // import { syncQuestionsFromFirebase } from '../../syncService';
 import { getQuizData, updateUserExperience } from '../../firebaseConfig.js'
 
-const difficultyPoints = {
-    '1': 10,
-    '2': 20,
-    '3': 30,
-  };
-  
+
+
 
 export default function Quiz({ navigation, route, userid  }) {
     const { categoryId } = route.params;
@@ -27,7 +23,7 @@ export default function Quiz({ navigation, route, userid  }) {
     useEffect(() => {
         const fetchQuizData = async () => {
             try {
-                const data = await getQuizData(categoryId); 
+                const data = await getQuizData(categoryId);                 
                 setQuizData(data);
             } catch (error) {
                 console.error("Error fetching quiz data:", error);
@@ -36,12 +32,6 @@ export default function Quiz({ navigation, route, userid  }) {
 
         fetchQuizData();
     }, [categoryId]);
-
-
-    // console.log('category at quiz:',categoryId)
-    // console.log(getQuizData(categoryId))
-    // console.log('quizData:', quizData);
-
     const handleOptionSelect = (option) => {
         setSelectedOptions(prev => ({ ...prev, [currentQuestionIndex]: option }));
     };
@@ -56,6 +46,12 @@ export default function Quiz({ navigation, route, userid  }) {
             // Debug log for difficulty_id
             console.log('Difficulty ID:', currentQuestion.difficulty_id);
 
+
+            const difficultyPoints = {
+                '1': 10,
+                '2': 20,
+                '3': 30,
+              };
 
             const baseExperiencePoints = difficultyPoints[currentQuestion.difficulty_id] || 0;
 
@@ -125,7 +121,6 @@ export default function Quiz({ navigation, route, userid  }) {
 
     const currentQuestion = quizData[currentQuestionIndex];
     const options = currentQuestion.options;
-
     return (
         <View style={styles.container}>
             <View style={styles.progressContainer}>
@@ -145,22 +140,24 @@ export default function Quiz({ navigation, route, userid  }) {
             </View>
 
             <Text style={styles.questionText}>{currentQuestion.question}</Text>
-            {Object.keys(options).map(optionKey => (
+
+            {options.map(({ id, answer}) => (
                 <TouchableOpacity
-                    key={optionKey}
+                    key={id}
                     style={[
                         styles.optionButton,
-                        selectedOptions[currentQuestionIndex] === optionKey && styles.selectedOptionButton
+                        selectedOptions[currentQuestionIndex] === id && styles.selectedOptionButton
                     ]}
-                    onPress={() => handleOptionSelect(optionKey)}
+                    onPress={() => handleOptionSelect(id)}
                 >
-                    <Text style={styles.optionText}>{options[optionKey]}</Text>
+                    <Text style={styles.optionText}>{answer}</Text>
                 </TouchableOpacity>
             ))}
             <Button title="Submit Answer" onPress={handleSubmitAnswer} />
         </View>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

@@ -35,12 +35,27 @@ auth.onAuthStateChanged(user => {
   }
 });
 
+const shuffleArray = (shuffled) => {
+  for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+};
+
+
 export const getQuizData = async (categoryId) => {
   const qs = collection(db, "questions")
   const qSnap = await getDocs(qs);
   const qList = qSnap.docs.map(doc => doc.data());
-  // return qList;
-  return qList.filter(question => question.category_id === categoryId);
+  const filtered = qList.filter(question => question.category_id === categoryId)
+  shuffleArray(filtered)
+  const max = filtered.slice(0, filtered.length >= 10 ? 10 : filtered.length)
+  for (let q of max) {
+    let answers = Object.entries(q.options).map(([k, v]) => ({id: k, answer: v}))
+    shuffleArray(answers)
+    q.options = answers
+  }
+  return max
 }
 
 export const updateUserExperience = async (userId, experiencePoints) => {
