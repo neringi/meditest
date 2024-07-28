@@ -55,18 +55,22 @@ export default function App() {
   }, []);
 
 
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      console.log('User is authenticated:', user.uid);
-      setLoggedIn(true);
-      setUserId(user.uid);
-      console.log('userid:',user.uid)
-    } else {
-      console.log('User is not authenticated');
-      setLoggedIn(false);
-      setUserId('');
-    }
-  });
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        console.log('User is authenticated:', user.uid);
+        setLoggedIn(true);
+        setUserId(user.uid);
+      } else {
+        console.log('User is not authenticated');
+        setLoggedIn(false);
+        setUserId('');
+      }
+    });
+
+    // Clean up the listener on component unmount
+    return () => unsubscribe();
+  }, []);
 
     return (
       <NavigationContainer>

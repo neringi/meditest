@@ -13,11 +13,14 @@ import * as Progress from 'react-native-progress';
 export default function Home({ route, navigation, loggedIn, setLoggedIn, userid }) {
   console.log("HOME", loggedIn)
   console.log("route", route)
+  console.log('useriduserid at home page',userid)
+  
   const [experience, setExperience] = useState(0);
   const [level, setLevel] = useState(0);
   const [categoryId, setCategoryId] = useState('');
 
   useEffect(() => {
+    console.log("userid in useEffect:", userid);
     const getUserData = async () => {
       try{
         console.log("userid: ",userid)
@@ -29,8 +32,8 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
           // console.log("Document data:", data);
           const experience = data.experience;
           const level = data.level;
-          // console.log("Experience:", experience);
-          // console.log("Level:", level);
+          console.log("Experience:", experience);
+          console.log("Level:", level);
         } else {
           // docSnap.data() will be undefined in this case
           console.log("No such document!");

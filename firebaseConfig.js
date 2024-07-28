@@ -81,8 +81,24 @@ export const updateUserExperience = async (userId, experiencePoints) => {
   }
 };
 
+const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect) => {
+  try {
+    const timestamp = new Date();
+    const logEntry = {
+      'userid': userid,
+      'questionid': questionId,
+      'selectedOption': selectedOption,
+      'isCorrect': isCorrect,
+      'createdDate': timestamp,
+    };
+    await addDoc(collection(db, 'answerlog'), logEntry);
+    console.log('Answer logged successfully:', logEntry);
+  } catch (error) {
+    console.error('Error logging answer:', error);
+  }
+};
 
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db, getQuizData, updateUserExperience}
+module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog}

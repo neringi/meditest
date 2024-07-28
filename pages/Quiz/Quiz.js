@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 // import { createTables, getQuestionsByCategory } from '../../db';
 // import { syncQuestionsFromFirebase } from '../../syncService';
-import { getQuizData, updateUserExperience } from '../../firebaseConfig.js'
+import { getQuizData, updateUserExperience, addToAnswerLog } from '../../firebaseConfig.js'
 
 
 
@@ -20,6 +20,8 @@ export default function Quiz({ navigation, route, userid  }) {
     const [answerSubmitted, setAnswerSubmitted] = useState(false);
     const [hintUsed, setHintUsed] = useState(false);
 
+
+    
     useEffect(() => {
         const fetchQuizData = async () => {
             try {
@@ -33,14 +35,17 @@ export default function Quiz({ navigation, route, userid  }) {
         fetchQuizData();
     }, [categoryId]);
     const handleOptionSelect = (option) => {
-        setSelectedOptions(prev => ({ ...prev, [currentQuestionIndex]: option }));
+        console.log('Option:', option)
+        setSelectedOptions(option)
     };
 
-    const handleSubmitAnswer = () => {
+    const handleSubmitAnswer = async () => {
         const currentQuestion = quizData[currentQuestionIndex];
-        const selectedOption = selectedOptions[currentQuestionIndex];
+        console.log("HANDLE SUBMIT")
+        console.log(selectedOptions)
+        console.log(currentQuestion)
 
-        if (selectedOption === currentQuestion.correct) {
+        if (selectedOptions.id === currentQuestion.correct) {
             setScore(prev => prev + 1);
             
             // Debug log for difficulty_id
@@ -59,10 +64,15 @@ export default function Quiz({ navigation, route, userid  }) {
             const experiencePoints = hintUsed ? baseExperiencePoints / 2 : baseExperiencePoints;
             console.log(`Correct answer! Adding ${experiencePoints} experience points.`);
             
-            updateUserExperience(userid, experiencePoints);
+            console.log('answerlog ', userid, currentQuestion.id, selectedOptions.id, 1)
+            await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 1); 
+            handleNextQuestion();
+            setAnswerSubmitted(true);
 
+            updateUserExperience(userid, experiencePoints);
             handleNextQuestion();
         } else {
+            await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 0);
             Alert.alert("Incorrect", currentQuestion.explanation,
                 [{ text: "OK", onPress: () => handleNextQuestion() }]
             );
@@ -88,6 +98,7 @@ export default function Quiz({ navigation, route, userid  }) {
     };
 
     const handleNextQuestion = () => {
+        setSelectedOptions({})
         setAnswerSubmitted(false);
         setHintUsed(false);
 
@@ -146,9 +157,9 @@ export default function Quiz({ navigation, route, userid  }) {
                     key={id}
                     style={[
                         styles.optionButton,
-                        selectedOptions[currentQuestionIndex] === id && styles.selectedOptionButton
+                        selectedOptions.id === id && styles.selectedOptionButton
                     ]}
-                    onPress={() => handleOptionSelect(id)}
+                    onPress={() => handleOptionSelect({id, answer})}
                 >
                     <Text style={styles.optionText}>{answer}</Text>
                 </TouchableOpacity>
