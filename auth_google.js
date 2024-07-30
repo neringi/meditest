@@ -1,4 +1,4 @@
-import { auth, db } from './firebaseConfig' 
+import { auth, db } from './firebaseConfig.js' 
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, setDoc, Timestamp } from "firebase/firestore"; 
 
@@ -17,7 +17,7 @@ function isPasswordStrong(password) {
 }
 
 async function register(username, email, password){
-
+  console.log('running register function');
   if (!isPasswordStrong(password)) {
     console.error('Password is not strong enough');
     throw new Error('Password must be at least 6 characters long and include lowercase and numbers!');
@@ -27,12 +27,15 @@ async function register(username, email, password){
   console.log('creating your user')
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password)
-    console.log('cred', cred)
+    console.log('User credentials:', cred);
+    // console.log('cred', cred)
     user = cred.user
   }  catch (err) {
-    console.error('Failed to create user')
-    throw err
+    console.error('Failed to create a new user:', err.message);
+    throw new Error('Failed to create a new user: ' + err.message);
   }
+
+
   try {
     if (!user) {
       throw new Error('Failed to create user')

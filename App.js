@@ -20,7 +20,7 @@ const Stack = createStackNavigator();
 
 
 export default function App() {
-  const [loggedIn, setLoggedIn] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false);
   const [userid, setUserId] = useState('');
 
   useEffect(() => {

@@ -19,6 +19,7 @@ export default function Quiz({ navigation, route, userid  }) {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [answerSubmitted, setAnswerSubmitted] = useState(false);
     const [hintUsed, setHintUsed] = useState(false);
+    const [level, setLevel] = useState(1);
 
 
     
@@ -34,16 +35,28 @@ export default function Quiz({ navigation, route, userid  }) {
 
         fetchQuizData();
     }, [categoryId]);
+
     const handleOptionSelect = (option) => {
         console.log('Option:', option)
         setSelectedOptions(option)
     };
 
     const handleSubmitAnswer = async () => {
+        
         const currentQuestion = quizData[currentQuestionIndex];
         console.log("HANDLE SUBMIT")
-        console.log(selectedOptions)
-        console.log(currentQuestion)
+        console.log("Current Question:", currentQuestion);
+        console.log("Selected Options:", selectedOptions);
+
+        if (!currentQuestion) {
+            console.error("Current question is undefined");
+            return;
+        }
+    
+        if (!selectedOptions) {
+            console.error("Selected options is undefined");
+            return;
+        }
 
         if (selectedOptions.id === currentQuestion.correct) {
             setScore(prev => prev + 1);
@@ -64,12 +77,12 @@ export default function Quiz({ navigation, route, userid  }) {
             const experiencePoints = hintUsed ? baseExperiencePoints / 2 : baseExperiencePoints;
             console.log(`Correct answer! Adding ${experiencePoints} experience points.`);
             
-            console.log('answerlog ', userid, currentQuestion.id, selectedOptions.id, 1)
+            console.log('answerlog', userid, currentQuestion.id, selectedOptions.id, 1)
             await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 1); 
-            handleNextQuestion();
             setAnswerSubmitted(true);
 
-            updateUserExperience(userid, experiencePoints);
+            updateUserExperience(userid, experiencePoints, handleLevelUp);
+
             handleNextQuestion();
         } else {
             await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 0);
@@ -92,6 +105,10 @@ export default function Quiz({ navigation, route, userid  }) {
         Alert.alert("Hint", currentQuestion.hint);
         setHintUsed(true);
     };
+
+    const handleLevelUp = () => {
+        Alert.alert("Congratulations!", "You leveled up!");
+      };
 
     const navigateHome = () => {
         navigation.navigate('Home', { userid: userid });

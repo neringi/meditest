@@ -5,8 +5,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import LoginPage from "../pages/Login/Login";
 import SignupPage from "../pages/Signup/Signup";
 import HomePage from "../pages/Home/Home";
-import QuizPage from "../pages/Quiz/Quiz";
-import TabNavigator from './TabNavigator';
+import Quiz from "../pages/Quiz/Quiz";
+import { HomeTabNavigator, QuizTabNavigator  } from './TabNavigator';
 import { NavigationContainer } from "@react-navigation/native";
 
 const Stack = createStackNavigator();
@@ -31,7 +31,7 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId, userid }) => {
 
             <Stack.Screen name="HomeTabs" options={{ headerShown: false }}>
               {(props) => (
-                <TabNavigator
+                <HomeTabNavigator
                   {...props}
                   loggedIn={loggedIn}
                   categoryId={categoryId}
@@ -40,17 +40,16 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId, userid }) => {
               )}
             </Stack.Screen>
 
-
             <Stack.Screen name="Quiz" options={{ headerShown: false }}>
-                {(props) => (
-                <QuizPage
-                    {...props}
-                    loggedIn={loggedIn}
-                    categoryId={categoryId}
-                    userid={userid}
-                />
-                )}
-            </Stack.Screen>
+            {(props) => (
+              <Quiz
+                {...props}
+                loggedIn={loggedIn}
+                categoryId={categoryId}
+                userid={userid}
+              />
+            )}
+          </Stack.Screen>
 
             </>
         ) : (

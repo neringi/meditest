@@ -5,6 +5,7 @@ import { logout } from '../../auth_google.js';
 import { doc, getDoc } from "firebase/firestore";
 import { db, updateUserExperience } from '../../firebaseConfig.js';
 import * as Progress from 'react-native-progress';
+import { setUserId } from 'firebase/analytics';
 
 
 
@@ -13,10 +14,12 @@ import * as Progress from 'react-native-progress';
 export default function Home({ route, navigation, loggedIn, setLoggedIn, userid }) {
   console.log("HOME", loggedIn)
   console.log("route", route)
-  console.log('useriduserid at home page',userid)
   
-  const [experience, setExperience] = useState(0);
-  const [level, setLevel] = useState(0);
+  // const { userid } = route.params || {};
+
+  console.log('useriduserid at home page',userid)
+  // const [experience, setExperience] = useState(0);
+  // const [level, setLevel] = useState(0);
   const [categoryId, setCategoryId] = useState('');
 
   useEffect(() => {
@@ -55,11 +58,12 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
     }
   }, [categoryId, navigation]);
 
-  // const handleLogout = () => {
-  //   logout()
-  //   setLoggedIn(false)
-  //   navigation.navigate('Login');
-  // };
+  const handleLogout = () => {
+    logout()
+    setLoggedIn(false)
+    setUserId('');
+    navigation.navigate('Login');
+  };
 
 
   const navigateToQuiz = (categoryId) => {
@@ -70,8 +74,8 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
     navigation.navigate('Quiz', { categoryId: categoryId});
   }
 
-  const expToNextLevel = 100; 
-  const progress = experience / expToNextLevel;
+  // const expToNextLevel = 100; 
+  // const progress = experience / expToNextLevel;
 
   
   return (
@@ -84,34 +88,17 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
     //   <StatusBar style="auto" />
     // </View>
   <View>
-    <View style={styles.container}>
-      <View style={styles.topBar}>
-          <Text style={styles.levelText}>{level}</Text>
-          
-          {/* Parent view for progress bar and text */}
-          <View style={styles.progressBarContainer}>
-            <Progress.Bar 
-              progress={progress} 
-              width={200} 
-              color="blue" 
-              borderWidth={2} 
-              borderColor="#00aeef" 
-              unfilledColor="#ADE9FF" 
-            />
-            <Text style={styles.progressText}>{(progress * 100).toFixed(0)}%</Text>
-          </View>
-          
-          <Text style={styles.nextLevelText}>{level + 1}</Text>
-      </View>
-        <Text style={styles.expText}>{expToNextLevel - experience} exp until level {level + 1}</Text>
-        {/* <TouchableOpacity style={styles.homeButton}>
-          <Text style={styles.homeButtonText}>Hi, you're logged in, {userid}!</Text>
-          <Button title="Sign out" onPress={handleLogout} />
-          <StatusBar style="auto" />
-        </TouchableOpacity> */}
-    </View>
+
 
   <View style={styles.container}>
+
+    <View style={styles.topBar}>
+          <Text style={styles.levelText}>Level: {/* Add level data here */}</Text>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
+    </View>
+
     <View style={styles.categoryContainer}>
       {/* SURGERY COMMON TERMS EASY*/}
       <TouchableOpacity
@@ -186,6 +173,15 @@ const styles = StyleSheet.create({
     width: 40,
     marginHorizontal: 10,
     textAlign: 'center',
+  },
+  logoutButton: {
+    padding: 10,
+    backgroundColor: 'red',
+    borderRadius: 5,
+  },
+  logoutButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   expText: {
     fontSize: 14,

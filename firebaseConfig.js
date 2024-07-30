@@ -58,7 +58,32 @@ export const getQuizData = async (categoryId) => {
   return max
 }
 
-export const updateUserExperience = async (userId, experiencePoints) => {
+const getUserData = async (userid) => {
+  try {
+    const userDocRef = doc(db, 'users', userid);
+    const userSnap = await getDocs(userDocRef);
+    if (userSnap.exists) {
+      const userData = userSnap.data();
+      return {
+          level: userData.level,
+          experience: userData.experience,
+          experienceToNextLevel: userData.experienceToNextLevel
+      };
+    } else {
+        console.error("No such user!");
+        return null;
+    }
+  } catch (error) {
+      console.error("Error getting user data:", error);
+      return null;
+  }
+};
+
+// Other functions l
+
+
+
+export const updateUserExperience = async (userId, experiencePoints, onLevelUp) => {
   try {
     const userRef = doc(db, 'users', userId);
     await runTransaction(db, async (transaction) => {
@@ -68,12 +93,44 @@ export const updateUserExperience = async (userId, experiencePoints) => {
         throw new Error("User does not exist!");
       }
 
-      const currentExperience = userDoc.data().experience || 0;
-      const newExperience = currentExperience + experiencePoints;
+      let { currentExperience, level, experienceToNextLevel } = userDoc.data();
+      
+      currentExperience = currentExperience || 0;
+      level = level || 1;
+      experienceToNextLevel = experienceToNextLevel || 100;
+
+      console.log('currentexp',currentExperience);
+      console.log('level',level);
+      console.log('experienceToNextLevel',experienceToNextLevel);
+
+      let newExperience = currentExperience + experiencePoints;
+
+      console.log('newexp',newExperience);
+      console.log(newExperience >= experienceToNextLevel);
+
+      // Level up logic
+      let levelledUp = false;
+      while (newExperience >= experienceToNextLevel) {
+        level += 1;
+        newExperience -= experienceToNextLevel;
+        experienceToNextLevel = Math.floor(experienceToNextLevel * 1.2); 
+        levelledUp = true;
+      }
+
+      console.log(`Updating user ${userId}: level ${level}, experience ${newExperience}/${experienceToNextLevel}`);
+
 
       console.log(`Updating experience for user ${userId}: ${currentExperience} + ${experiencePoints} = ${newExperience}`);
 
-      transaction.update(userRef, { experience: newExperience });
+      transaction.update(userRef, { 
+        currentExperience: newExperience,
+        level: level,
+        experienceToNextLevel: experienceToNextLevel
+      });
+
+      if (levelledUp && onLevelUp) {
+        onLevelUp(); // Call the callback if the user leveled up
+      };
     });
     console.log('User experience updated successfully.');
   } catch (error) {
