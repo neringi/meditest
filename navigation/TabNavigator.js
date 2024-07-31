@@ -8,7 +8,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
 
-const HomeTabNavigator = () => (
+const HomeTabNavigator = ({ userid }) => (
   <Tab.Navigator
     screenOptions={{
       tabBarActiveTintColor: 'blue',
@@ -23,6 +23,7 @@ const HomeTabNavigator = () => (
           <Ionicons name="home-outline" size={size} color={color} />
         ),
       }}
+      userid={userid}
     />
     <Tab.Screen
       name="Progress"

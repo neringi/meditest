@@ -22,31 +22,31 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
   // const [level, setLevel] = useState(0);
   const [categoryId, setCategoryId] = useState('');
 
-  useEffect(() => {
-    console.log("userid in useEffect:", userid);
-    const getUserData = async () => {
-      try{
-        console.log("userid: ",userid)
-        const docRef = doc(db, "users", userid);
-        const docSnap = await getDoc(docRef);
+  // useEffect(() => {
+  //   console.log("userid in useEffect:", userid);
+  //   const getUserData = async () => {
+  //     try{
+  //       console.log("userid: ",userid)
+  //       const docRef = doc(db, "users", userid);
+  //       const docSnap = await getDoc(docRef);
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          // console.log("Document data:", data);
-          const experience = data.experience;
-          const level = data.level;
-          console.log("Experience:", experience);
-          console.log("Level:", level);
-        } else {
-          // docSnap.data() will be undefined in this case
-          console.log("No such document!");
-        }
-      } catch(err){
-        console.error(err);
-      }
-    };
-  getUserData();
-  }, [userid]);
+  //       if (docSnap.exists()) {
+  //         const data = docSnap.data();
+  //         // console.log("Document data:", data);
+  //         const experience = data.experience;
+  //         const level = data.level;
+  //         console.log("Experience:", experience);
+  //         console.log("Level:", level);
+  //       } else {
+  //         // docSnap.data() will be undefined in this case
+  //         console.log("No such document!");
+  //       }
+  //     } catch(err){
+  //       console.error(err);
+  //     }
+  //   };
+  // getUserData();
+  // }, [userid]);
 
 
 

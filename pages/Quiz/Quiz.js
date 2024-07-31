@@ -4,9 +4,25 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 // import { createTables, getQuestionsByCategory } from '../../db';
 // import { syncQuestionsFromFirebase } from '../../syncService';
-import { getQuizData, updateUserExperience, addToAnswerLog } from '../../firebaseConfig.js'
+import { 
+    getQuizData, 
+    addToAnswerLog, 
+    getUserExperience, 
+    updateUserExperience
+    /*updateUserExperience,*/ 
+} from '../../firebaseConfig.js'
+import ProgressBar from 'react-native-progress/Bar';
 
 
+const difficultyPoints = {
+    '1': 10,
+    '2': 20,
+    '3': 30,
+};
+
+const calculateTotalExperienceForLevel = (level) => {
+    return Math.floor(100*Math.pow(1.2, level -1))
+}
 
 
 export default function Quiz({ navigation, route, userid  }) {
@@ -20,7 +36,8 @@ export default function Quiz({ navigation, route, userid  }) {
     const [answerSubmitted, setAnswerSubmitted] = useState(false);
     const [hintUsed, setHintUsed] = useState(false);
     const [level, setLevel] = useState(1);
-
+    const [currentExperience, setCurrentExperience] = useState(0);
+    const [experienceToNextLevel, setExperienceToNextLevel] = useState(100);
 
     
     useEffect(() => {
@@ -33,8 +50,23 @@ export default function Quiz({ navigation, route, userid  }) {
             }
         };
 
+        const fetchUserExperience = async () => {
+            try {
+              
+              const userExperience = await getUserExperience(userid);
+              console.log('fetching user exp', userExperience)
+              // don't do { || value } instead properly handle error.
+              setCurrentExperience(userExperience.currentExperience || 0);
+              setLevel(userExperience.level || 1);
+            } catch (error) {
+              console.error('Error fetching user experience:', error);
+            }
+          };
+
+
         fetchQuizData();
-    }, [categoryId]);
+        fetchUserExperience();
+    }, [categoryId,userid]);
 
     const handleOptionSelect = (option) => {
         console.log('Option:', option)
@@ -42,7 +74,12 @@ export default function Quiz({ navigation, route, userid  }) {
     };
 
     const handleSubmitAnswer = async () => {
-        
+        // Check if answer correct or not answered (/)
+        // If not correct or not answered display explanation and move forward (/)
+        // If correct 
+        // Increment Answer Counter
+        // Update Experience
+        // Save to firestore
         const currentQuestion = quizData[currentQuestionIndex];
         console.log("HANDLE SUBMIT")
         console.log("Current Question:", currentQuestion);
@@ -58,39 +95,33 @@ export default function Quiz({ navigation, route, userid  }) {
             return;
         }
 
-        if (selectedOptions.id === currentQuestion.correct) {
-            setScore(prev => prev + 1);
-            
-            // Debug log for difficulty_id
-            console.log('Difficulty ID:', currentQuestion.difficulty_id);
-
-
-            const difficultyPoints = {
-                '1': 10,
-                '2': 20,
-                '3': 30,
-              };
-
-            const baseExperiencePoints = difficultyPoints[currentQuestion.difficulty_id] || 0;
-
-            console.log(baseExperiencePoints)
-            const experiencePoints = hintUsed ? baseExperiencePoints / 2 : baseExperiencePoints;
-            console.log(`Correct answer! Adding ${experiencePoints} experience points.`);
-            
-            console.log('answerlog', userid, currentQuestion.id, selectedOptions.id, 1)
-            await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 1); 
-            setAnswerSubmitted(true);
-
-            updateUserExperience(userid, experiencePoints, handleLevelUp);
-
-            handleNextQuestion();
-        } else {
+        if (selectedOptions.id !== currentQuestion.correct) {
             await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 0);
             Alert.alert("Incorrect", currentQuestion.explanation,
                 [{ text: "OK", onPress: () => handleNextQuestion() }]
             );
+            return
         }
+        
+        setScore(prev => prev + 1);
+        const baseExperiencePoints = difficultyPoints[currentQuestion.difficulty_id]; 
+        const experiencePoints = hintUsed ? baseExperiencePoints / 2 : baseExperiencePoints;
+        let currentLevelTotalExperience = calculateTotalExperienceForLevel(level)
+        let newExperience = currentExperience + experiencePoints
+        let newLevel = level
+        if (newExperience >= currentLevelTotalExperience) {
+            newLevel += 1
+            currentLevelTotalExperience = calculateTotalExperienceForLevel(newLevel)
+            newExperience = Math.abs(experienceToNextLevel - newExperience)
+        }
+        setCurrentExperience(newExperience);
+        setExperienceToNextLevel(currentLevelTotalExperience);
+        setLevel(newLevel);
+        
+        await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 1); 
+        await updateUserExperience(userid, newLevel, newExperience)
         setAnswerSubmitted(true);
+        handleNextQuestion();
     };
 
     const handleRetakeQuiz = () => {
@@ -114,7 +145,7 @@ export default function Quiz({ navigation, route, userid  }) {
         navigation.navigate('Home', { userid: userid });
     };
 
-    const handleNextQuestion = () => {
+    const handleNextQuestion = async () => {
         setSelectedOptions({})
         setAnswerSubmitted(false);
         setHintUsed(false);
@@ -124,7 +155,11 @@ export default function Quiz({ navigation, route, userid  }) {
         } else {
             setShowResults(true);
         }
+
+        
     };
+
+    console.log('testing', currentExperience)
 
     if (quizData.length === 0) {
         return <Text>Loading...</Text>;
@@ -151,6 +186,20 @@ export default function Quiz({ navigation, route, userid  }) {
     const options = currentQuestion.options;
     return (
         <View style={styles.container}>
+
+            <View style={styles.experienceContainer}>
+                <Text style={styles.experienceText}>
+                    Experience: {currentExperience}/{experienceToNextLevel}
+                </Text>
+
+                <ProgressBar
+                progress={currentExperience / experienceToNextLevel}
+                width={null}
+                height={10}
+                color="#00aeef"
+                />
+            </View>
+
             <View style={styles.progressContainer}>
                 {quizData.map((question, index) => (
                     <View
@@ -182,9 +231,17 @@ export default function Quiz({ navigation, route, userid  }) {
                 </TouchableOpacity>
             ))}
             <Button title="Submit Answer" onPress={handleSubmitAnswer} />
-        </View>
-    );
+
+
+            
+    </View>
+  );
 }
+
+            
+        {/* </View>
+    );
+} */}
 
 
 const styles = StyleSheet.create({
@@ -193,6 +250,16 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    experienceContainer: {
+        width: '100%',
+        alignItems: 'center',
+        marginBottom: 20,
+        marginTop: 40, // Adjust as needed
+    },
+    experienceText: {
+        fontSize: 16,
+        marginBottom: 10,
     },
     progressContainer: {
         flexDirection: 'row',
@@ -243,4 +310,5 @@ const styles = StyleSheet.create({
         flex: 1, 
         marginHorizontal: 10, 
     },
+
 });

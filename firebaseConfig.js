@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getDocs, getFirestore, collection, addDoc, runTransaction } from "firebase/firestore"; 
+import { doc, getDoc, getDocs, getFirestore, collection, addDoc, runTransaction } from "firebase/firestore"; 
 
 
 
@@ -58,24 +58,25 @@ export const getQuizData = async (categoryId) => {
   return max
 }
 
-const getUserData = async (userid) => {
+export const getUserExperience = async (userid) => {
   try {
     const userDocRef = doc(db, 'users', userid);
-    const userSnap = await getDocs(userDocRef);
-    if (userSnap.exists) {
+    const userSnap = await getDoc(userDocRef);
+    
+    if (userSnap.exists()) {
       const userData = userSnap.data();
       return {
-          level: userData.level,
-          experience: userData.experience,
-          experienceToNextLevel: userData.experienceToNextLevel
+        level: userData.level,
+        currentExperience: userData.currentExperience,
+        experienceToNextLevel: userData.experienceToNextLevel
       };
     } else {
-        console.error("No such user!");
-        return null;
+      console.error("No such user!");
+      return null;
     }
   } catch (error) {
-      console.error("Error getting user data:", error);
-      return null;
+    console.error("Error getting user data:", error);
+    return null;
   }
 };
 
@@ -83,7 +84,7 @@ const getUserData = async (userid) => {
 
 
 
-export const updateUserExperience = async (userId, experiencePoints, onLevelUp) => {
+export const updateUserExperience = async (userId, level, experiencePoints) => {
   try {
     const userRef = doc(db, 'users', userId);
     await runTransaction(db, async (transaction) => {
@@ -92,45 +93,10 @@ export const updateUserExperience = async (userId, experiencePoints, onLevelUp) 
       if (!userDoc.exists()) {
         throw new Error("User does not exist!");
       }
-
-      let { currentExperience, level, experienceToNextLevel } = userDoc.data();
-      
-      currentExperience = currentExperience || 0;
-      level = level || 1;
-      experienceToNextLevel = experienceToNextLevel || 100;
-
-      console.log('currentexp',currentExperience);
-      console.log('level',level);
-      console.log('experienceToNextLevel',experienceToNextLevel);
-
-      let newExperience = currentExperience + experiencePoints;
-
-      console.log('newexp',newExperience);
-      console.log(newExperience >= experienceToNextLevel);
-
-      // Level up logic
-      let levelledUp = false;
-      while (newExperience >= experienceToNextLevel) {
-        level += 1;
-        newExperience -= experienceToNextLevel;
-        experienceToNextLevel = Math.floor(experienceToNextLevel * 1.2); 
-        levelledUp = true;
-      }
-
-      console.log(`Updating user ${userId}: level ${level}, experience ${newExperience}/${experienceToNextLevel}`);
-
-
-      console.log(`Updating experience for user ${userId}: ${currentExperience} + ${experiencePoints} = ${newExperience}`);
-
       transaction.update(userRef, { 
-        currentExperience: newExperience,
+        currentExperience: experiencePoints,
         level: level,
-        experienceToNextLevel: experienceToNextLevel
       });
-
-      if (levelledUp && onLevelUp) {
-        onLevelUp(); // Call the callback if the user leveled up
-      };
     });
     console.log('User experience updated successfully.');
   } catch (error) {
@@ -158,4 +124,4 @@ const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect) => 
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog}
+module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience}
