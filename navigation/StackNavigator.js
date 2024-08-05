@@ -6,7 +6,7 @@ import LoginPage from "../pages/Login/Login";
 import SignupPage from "../pages/Signup/Signup";
 import HomePage from "../pages/Home/Home";
 import Quiz from "../pages/Quiz/Quiz";
-import { HomeTabNavigator, QuizTabNavigator  } from './TabNavigator';
+import { HomeTabNavigator  } from './TabNavigator';
 import { NavigationContainer } from "@react-navigation/native";
 
 const Stack = createStackNavigator();
@@ -18,23 +18,14 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId, userid }) => {
         <Stack.Navigator>
         {loggedIn ? (
             <>
-            {/* <Stack.Screen name="Home" options={{ headerShown: false }}>
-                {(props) => (
-                <HomePage
-                    {...props}
-                    loggedIn={loggedIn}
-                    categoryId={categoryId}
-                    userid={userid}
-                />
-                )}
-            </Stack.Screen> */}
-
             <Stack.Screen name="HomeTabs" options={{ headerShown: false }}>
               {(props) => (
                 <HomeTabNavigator
                   {...props}
-                  loggedIn={loggedIn}
-                  categoryId={categoryId}
+                  // initialParams={{userid, loggedIn, setLoggedIn, categoryId}}
+                  // loggedIn={loggedIn}
+                  setLoggedIn={setLoggedIn}
+                  // categoryId={categoryId}
                   userid={userid}
                 />
               )}

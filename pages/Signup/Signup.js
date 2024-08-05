@@ -4,16 +4,16 @@ import { StatusBar, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert }
 import { register } from '../../auth_google.js';
 import { navigateToHome } from '../Login/Login.js';
 
-export default function SignupPage({ navigation, loggedIn, setLoggedIn }) {
+export default function SignupPage({ navigation, loggedIn, setLoggedIn, userid }) {
   const [username, setUsername] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   
 
-//   const navigateToHome = (user = user) => {
-//     console.log("logging in: ", user)
-//     navigation.navigate('Home', { userid: user.uid });
-//   }
+  const navigateToHome = (userid = userid) => {
+    console.log("logging in: ", user)
+    navigation.navigate('Home', { userid: userid });
+  }
 
   
   const handleSignUp = async () => {
@@ -25,7 +25,7 @@ export default function SignupPage({ navigation, loggedIn, setLoggedIn }) {
     console.log('password', signupPassword)
     await register(username, signupEmail, signupPassword)
     setLoggedIn(true)
-    // navigateToHome(user)
+    navigateToHome(userid)
     // Alert.alert('Sign Up Successful', `Welcome, ${username}!`);
     
     };

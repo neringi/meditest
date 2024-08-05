@@ -11,16 +11,17 @@ import { setUserId } from 'firebase/analytics';
 
 
 
-export default function Home({ route, navigation, loggedIn, setLoggedIn, userid }) {
+export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
   console.log("HOME", loggedIn)
   console.log("route", route)
   
-  // const { userid } = route.params || {};
+  const { userid } = route.params;
 
   console.log('useriduserid at home page',userid)
   // const [experience, setExperience] = useState(0);
   // const [level, setLevel] = useState(0);
   const [categoryId, setCategoryId] = useState('');
+  
 
   // useEffect(() => {
   //   console.log("userid in useEffect:", userid);
@@ -60,7 +61,7 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn, userid 
 
   const handleLogout = () => {
     logout()
-    setLoggedIn(false)
+    // setLoggedIn(false)
     setUserId('');
     navigation.navigate('Login');
   };

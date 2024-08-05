@@ -8,7 +8,11 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Tab = createBottomTabNavigator();
 
-const HomeTabNavigator = ({ userid }) => (
+const HomeWrapper = (props) => {
+  return <Home {...props} userid={props.route.params.userid} setLoggedIn={props.route.params.setLoggedIn} />;
+};
+
+const HomeTabNavigator = ({ userid, setLoggedIn }) => (
   <Tab.Navigator
     screenOptions={{
       tabBarActiveTintColor: 'blue',
@@ -17,17 +21,19 @@ const HomeTabNavigator = ({ userid }) => (
   >
     <Tab.Screen
       name="Home"
-      component={Home}
+      component={HomeWrapper}
+      initialParams={{ userid, setLoggedIn }}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="home-outline" size={size} color={color} />
         ),
       }}
-      userid={userid}
     />
     <Tab.Screen
       name="Progress"
-      component={Progress}
+      // component={Progress}
+      // initialParams={{ userid }}
+      children={(props) => <Progress {...props} userid={userid} />}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="trending-up" size={size} color={color} />

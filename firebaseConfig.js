@@ -3,7 +3,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import { doc, getDoc, getDocs, getFirestore, collection, addDoc, runTransaction } from "firebase/firestore"; 
+import { doc, getDoc, getDocs, getFirestore, collection, query, where, addDoc, runTransaction } from "firebase/firestore"; 
 
 
 
@@ -80,8 +80,55 @@ export const getUserExperience = async (userid) => {
   }
 };
 
-// Other functions l
+export const getAnswerLogData = async (userid) => {
+  try {
+    const q = query(collection(db, 'answerlog'), where('userid', '==', userid));
+    const querySnapshot = await getDocs(q);
+    
+    const answerlogList = querySnapshot.docs.map(doc => doc.data());
+    
+    return answerlogList;
+  } catch (error) {
+    console.error('Error fetching answer log data:', error);
+    return [];
+  }
+};
 
+export const getAnswerLogCountData = async (userid) => {
+  try{
+    const q = query(collection(db, 'answerlog'), where('userid', '==', userid));
+    const querySnapshot = await getDocs(q);
+    
+    const answerlogList = querySnapshot.docs.map(doc => doc.data());
+    
+    // Group and count data by createdDate
+    const counts = answerlogList.reduce((acc, item) => {
+      const date = new Date(item.createdDate.seconds * 1000); // Convert Firebase timestamp to Date
+      const dateString = date.toISOString().split('T')[0]; // Extract date part
+
+      if (!acc[dateString]) {
+        acc[dateString] = { total: 0, correct: 0 };
+      }
+      acc[dateString].total += 1;
+      if (item.isCorrect) {
+        acc[dateString].correct += 1;
+      }
+
+      return acc;
+    }, {});
+     // Convert the counts object to an array of { date, total, correct } objects
+     const result = Object.keys(counts).map(date => ({
+      date,
+      total: counts[date].total,
+      correct: counts[date].correct,
+    })).sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort by date
+    
+    return result;
+  } catch (error) {
+    console.error('Error fetching answer log data:', error);
+    return [];
+  }
+};
 
 
 export const updateUserExperience = async (userId, level, experiencePoints) => {
@@ -124,4 +171,4 @@ const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect) => 
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience}
+module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getAnswerLogData, getAnswerLogCountData}
