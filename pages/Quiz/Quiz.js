@@ -1,5 +1,7 @@
 import { Alert, Button, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import { Dimensions } from 'react-native';
+
 // import { firebase } from '../../config';
 import { useNavigation } from '@react-navigation/native';
 // import { createTables, getQuestionsByCategory } from '../../db';
@@ -13,6 +15,8 @@ import {
 } from '../../firebaseConfig.js'
 import ProgressBar from 'react-native-progress/Bar';
 
+
+const screenWidth = Dimensions.get('window').width;
 
 const difficultyPoints = {
     '1': 10,
@@ -171,12 +175,12 @@ export default function Quiz({ navigation, route, userid  }) {
                 <Text style={styles.resultText}>Quiz Complete!</Text>
                 <Text style={styles.resultText}>Your score: {score} / {quizData.length}</Text>
                 <View style={styles.buttonContainer}>
-                    <View style={styles.buttonWrapper}>
-                        <Button title="Try Again" onPress={handleRetakeQuiz} />
-                    </View>
-                    <View style={styles.buttonWrapper}>
-                        <Button title="Go to Home" onPress={navigateHome} />
-                    </View>
+                    <TouchableOpacity style={styles.button} onPress={handleRetakeQuiz}>
+                        <Text style={styles.buttonText}>Try Again</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.button} onPress={navigateHome}>
+                        <Text style={styles.buttonText}>Go to Home</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         );
@@ -184,19 +188,22 @@ export default function Quiz({ navigation, route, userid  }) {
 
     const currentQuestion = quizData[currentQuestionIndex];
     const options = currentQuestion.options;
+
     return (
         <View style={styles.container}>
 
             <View style={styles.experienceContainer}>
                 <Text style={styles.experienceText}>
-                    Experience: {currentExperience}/{experienceToNextLevel}
+                    EXP: {currentExperience}/{experienceToNextLevel}
                 </Text>
 
                 <ProgressBar
-                progress={currentExperience / experienceToNextLevel}
-                width={null}
-                height={10}
-                color="#00aeef"
+                    progress={currentExperience / experienceToNextLevel}
+                    width={Dimensions.get('window').width - 40}
+                    height={15}
+                    color="#00aeef"
+                    borderRadius={10}
+                    style={styles.progressBar}
                 />
             </View>
 
@@ -216,32 +223,33 @@ export default function Quiz({ navigation, route, userid  }) {
                 <Button title="Hint" onPress={handleShowHint} />
             </View>
 
-            <Text style={styles.questionText}>{currentQuestion.question}</Text>
+            
+            <View style={styles.cardContainer}>
+                <Text style={styles.questionText}>{currentQuestion.question}</Text>
 
-            {options.map(({ id, answer}) => (
-                <TouchableOpacity
-                    key={id}
-                    style={[
-                        styles.optionButton,
-                        selectedOptions.id === id && styles.selectedOptionButton
-                    ]}
-                    onPress={() => handleOptionSelect({id, answer})}
-                >
-                    <Text style={styles.optionText}>{answer}</Text>
-                </TouchableOpacity>
-            ))}
-            <Button title="Submit Answer" onPress={handleSubmitAnswer} />
+                {options.map(({ id, answer}) => (
+                    <TouchableOpacity
+                        key={id}
+                        style={[
+                            styles.optionButton,
+                            selectedOptions.id === id && styles.selectedOptionButton
+                        ]}
+                        onPress={() => handleOptionSelect({id, answer})}
+                    >
+                        <Text style={styles.optionText}>{answer}</Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
+            
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmitAnswer}>
+                <Text style={styles.submitButtonText}>Submit Answer</Text>
+            </TouchableOpacity>
 
 
             
     </View>
   );
 }
-
-            
-        {/* </View>
-    );
-} */}
 
 
 const styles = StyleSheet.create({
@@ -250,15 +258,17 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#f0f4f8',
     },
     experienceContainer: {
         width: '100%',
         alignItems: 'center',
         marginBottom: 20,
-        marginTop: 40, // Adjust as needed
+        marginTop: 40, 
     },
     experienceText: {
         fontSize: 16,
+        color: '#0077b6',
         marginBottom: 10,
     },
     progressContainer: {
@@ -266,14 +276,14 @@ const styles = StyleSheet.create({
         marginBottom: 20,
     },
     progressDot: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+        width: 12,
+        height: 12,
+        borderRadius: 6,
         backgroundColor: 'lightgray',
         marginHorizontal: 5,
     },
     activeProgressDot: {
-        backgroundColor: '#00aeef',
+        backgroundColor: '#0077b6',
     },
     hintContainer: {
         marginBottom: 10,
@@ -281,34 +291,76 @@ const styles = StyleSheet.create({
     },
     questionText: {
         fontSize: 20,
+        color: '#fff',
         marginBottom: 20,
+        padding: 15,
+        backgroundColor: '#00AEEF', 
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5, // For Android shadow
+        textAlign: 'center',
+    },
+    cardContainer: {
+        width: '100%',
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        padding: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5, // For Android shadow
     },
     optionButton: {
         backgroundColor: '#ddd',
-        padding: 10,
-        marginVertical: 5,
+        padding: 15,
+        marginVertical: 8,
         width: '100%',
         alignItems: 'center',
+        borderRadius: 8,
     },
     selectedOptionButton: {
         backgroundColor: '#87cefa', 
     },
     optionText: {
-        fontSize: 16,
+        fontSize: 18,
+        color: '#333',
     },
     resultText: {
         fontSize: 24,
         fontWeight: 'bold',
+        color: '#0077b6',
         marginBottom: 20,
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%', 
+    button: {
+        backgroundColor: '#0077b6',
+        padding: 15,
+        borderRadius: 8,
+        marginHorizontal: 10,
+        alignItems: 'center',
     },
-    buttonWrapper: {
-        flex: 1, 
-        marginHorizontal: 10, 
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
-
+    submitButton: {
+        backgroundColor: '#0077b6',
+        padding: 15,
+        borderRadius: 8,
+        marginTop: 20, 
+        width: '80%', 
+        alignItems: 'center',
+    },
+    submitButtonText: {
+        color: '#fff',
+        fontSize: 18, 
+        fontWeight: 'bold',
+    },
+    progressBar: {
+        marginVertical: 10,
+    },
 });
