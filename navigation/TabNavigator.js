@@ -22,7 +22,7 @@ const HomeTabNavigator = ({ userid, setLoggedIn }) => (
     <Tab.Screen
       name="Home"
       component={HomeWrapper}
-      initialParams={{ userid, setLoggedIn }}
+      initialParams={{ userid }}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="home-outline" size={size} color={color} />

@@ -130,6 +130,81 @@ export const getAnswerLogCountData = async (userid) => {
   }
 };
 
+export const getCategoryList = async () => {
+  try {
+    const q = collection(db, 'questions'); 
+    const querySnapshot = await getDocs(q);
+
+    const categoryData = {};
+
+    // Iterate through all questions and group by category ID
+    querySnapshot.docs.forEach(doc => {
+      const data = doc.data();
+      const categoryId = data.category_id;
+      if (categoryId) {
+        if (!categoryData[categoryId]) {
+          categoryData[categoryId] = {
+            name: data.category,
+            totalQuestions: 0
+          };
+        }
+        categoryData[categoryId].totalQuestions += 1;
+      }
+    });
+
+    // Convert the categoryData object to an array of objects
+    const categoryList = Object.keys(categoryData).map(categoryId => ({
+      category_id: categoryId,
+      category_name: categoryData[categoryId].name,
+      totalQuestions: categoryData[categoryId].totalQuestions
+    }));
+
+    return categoryList;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+};
+
+export const getCategoryLogData = async (userid) => {
+  try{
+    const q = query(collection(db, 'answerlog'), where('userid', '==', userid));
+    const querySnapshot = await getDocs(q);
+    
+    const answerlogList = querySnapshot.docs.map(doc => doc.data());
+    const categoryCounts = answerlogList.reduce((acc, item) => {
+      const categoryId = item.categoryid;
+      const questionId = item.questionid;
+
+      if (!acc[categoryId]) {
+        acc[categoryId] = { correctQuestionIds: new Set(), totalQuestions: new Set() };
+      }
+
+      // Track unique question IDs for correct answers
+      if (item.isCorrect) {
+        acc[categoryId].correctQuestionIds.add(questionId);
+      }
+
+      // Track total unique question IDs
+      acc[categoryId].totalQuestions.add(questionId);
+
+      return acc;
+    }, {});
+
+    // Convert the counts object to an array of { category_id, correctQuestionCount, totalQuestions } objects
+    const result = Object.keys(categoryCounts).map(categoryId => ({
+      category_id: categoryId,
+      correctQuestionCount: categoryCounts[categoryId].correctQuestionIds.size, // Count distinct correct answers
+      totalQuestions: categoryCounts[categoryId].totalQuestions.size // Count distinct questions
+    }));
+
+    return result;
+  } catch(error) {
+    console.error('Error fetching category log data:', error);
+    return [];
+  }
+}
+
 
 export const updateUserExperience = async (userId, level, experiencePoints) => {
   try {
@@ -151,7 +226,7 @@ export const updateUserExperience = async (userId, level, experiencePoints) => {
   }
 };
 
-const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect) => {
+const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect, categoryid) => {
   try {
     const timestamp = new Date();
     const logEntry = {
@@ -160,6 +235,7 @@ const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect) => 
       'selectedOption': selectedOption,
       'isCorrect': isCorrect,
       'createdDate': timestamp,
+      'categoryid': categoryid
     };
     await addDoc(collection(db, 'answerlog'), logEntry);
     console.log('Answer logged successfully:', logEntry);
@@ -171,4 +247,4 @@ const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect) => 
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getAnswerLogData, getAnswerLogCountData}
+module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getCategoryLogData, getAnswerLogCountData, getCategoryList }

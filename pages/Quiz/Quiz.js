@@ -100,7 +100,7 @@ export default function Quiz({ navigation, route, userid  }) {
         }
 
         if (selectedOptions.id !== currentQuestion.correct) {
-            await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 0);
+            await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 0,currentQuestion.category_id);
             Alert.alert("Incorrect", currentQuestion.explanation,
                 [{ text: "OK", onPress: () => handleNextQuestion() }]
             );
@@ -110,7 +110,8 @@ export default function Quiz({ navigation, route, userid  }) {
         setScore(prev => prev + 1);
         const baseExperiencePoints = difficultyPoints[currentQuestion.difficulty_id]; 
         const experiencePoints = hintUsed ? baseExperiencePoints / 2 : baseExperiencePoints;
-        let currentLevelTotalExperience = calculateTotalExperienceForLevel(level)
+        let currentLevelTotalExperience = calculateTotalExperienceForLevel(level);
+        setExperienceToNextLevel(currentLevelTotalExperience);
         let newExperience = currentExperience + experiencePoints
         let newLevel = level
         if (newExperience >= currentLevelTotalExperience) {
@@ -122,7 +123,7 @@ export default function Quiz({ navigation, route, userid  }) {
         setExperienceToNextLevel(currentLevelTotalExperience);
         setLevel(newLevel);
         
-        await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 1); 
+        await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 1, currentQuestion.category_id); 
         await updateUserExperience(userid, newLevel, newExperience)
         setAnswerSubmitted(true);
         handleNextQuestion();
@@ -162,8 +163,6 @@ export default function Quiz({ navigation, route, userid  }) {
 
         
     };
-
-    console.log('testing', currentExperience)
 
     if (quizData.length === 0) {
         return <Text>Loading...</Text>;
