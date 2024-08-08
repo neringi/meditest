@@ -67,15 +67,16 @@ async function login(email, password) {
 
 function logout() {
   const auth = getAuth();
-  signOut(auth).then(() => {
-  // Sign-out successful.
-    console.log('signed out')
-    
-  })
-  .catch((error) => {
-  // An error happened.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-  });
+  return signOut(auth)
+    .then(() => {
+      // Sign-out successful.
+      console.log('signed out');
+    })
+    .catch((error) => {
+      // An error happened.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.error(`Error (${errorCode}): ${errorMessage}`);
+    });
 }
 module.exports = { register, login, logout }

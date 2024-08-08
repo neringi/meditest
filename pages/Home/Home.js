@@ -11,7 +11,7 @@ import { setUserId } from 'firebase/analytics';
 
 
 
-export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
+export default function Home({ route, navigation, loggedIn }) {
   console.log("HOME", loggedIn)
   console.log("route", route)
   
@@ -61,9 +61,15 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
 
   const handleLogout = () => {
     logout()
-    // setLoggedIn(false)
-    setUserId('');
-    navigation.navigate('Login');
+    .then(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });  // Navigate to login screen with reset
+    })
+    .catch(error => {
+      console.error("Logout failed: ", error);
+    });
   };
 
 
@@ -88,17 +94,17 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
     //   <Button title="Sign out" onPress={handleLogout} />
     //   <StatusBar style="auto" />
     // </View>
-  <View>
-
-
   <View style={styles.container}>
 
+
+  
     <View style={styles.topBar}>
-          <Text style={styles.levelText}>Level: {/* Add level data here */}</Text>
+          <Text style={styles.levelText}>Level: 1</Text>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutButtonText}>Logout</Text>
+            <Text style={styles.logoutButtonText}>Sign Out</Text>
           </TouchableOpacity>
     </View>
+
 
     <View style={styles.categoryContainer}>
       {/* SURGERY COMMON TERMS EASY*/}
@@ -147,8 +153,8 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
       </TouchableOpacity>
 
     </View>
-  </View>
 </View>
+
 
 );
 }
@@ -156,10 +162,10 @@ export default function Home({ route, navigation, loggedIn, setLoggedIn }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingHorizontal: 10,
+    backgroundColor: '#E0F7FA',
   },
   topBar: {
     flexDirection: 'row',
@@ -167,55 +173,43 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  levelText: {
-    fontSize: 18,
-    width: 40,
-    marginHorizontal: 10,
-    textAlign: 'center',
+    paddingTop: 10, 
+    paddingBottom: 10, 
   },
   logoutButton: {
-    padding: 10,
-    backgroundColor: 'red',
+    top: 10,
+    right: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: '#d9534f',  // Bootstrap "danger" color
     borderRadius: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
   },
   logoutButtonText: {
-    color: 'white',
+    color: '#fff',
     fontWeight: 'bold',
+    fontSize: 16,
   },
-  expText: {
-    fontSize: 14,
-    marginVertical: 15,
-    textAlign: 'center',
-  },
-  progressBarContainer: {
-    position: 'relative',
-    width: 200,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  progressText: {
-    position: 'absolute',
-    fontSize: 12,
-    color: 'black',
+  contentText: {
+    marginTop: 100,
+    fontSize: 18,
+    color: '#333',
   },
   homeButton: {
     backgroundColor: 'blue',
     padding: 10,
     marginTop: 10,
   },
-  homeButtonText: {
-    color: 'white',
-    textAlign: 'center',
-  },
+  
   categoryContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: 40,
   },
   category: {
     width: 150,

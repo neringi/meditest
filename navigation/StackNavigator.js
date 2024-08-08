@@ -24,7 +24,7 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId, userid }) => {
                   {...props}
                   // initialParams={{userid, loggedIn, setLoggedIn, categoryId}}
                   // loggedIn={loggedIn}
-                  setLoggedIn={setLoggedIn}
+                  
                   // categoryId={categoryId}
                   userid={userid}
                 />
