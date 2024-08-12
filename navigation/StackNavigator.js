@@ -6,6 +6,7 @@ import LoginPage from "../pages/Login/Login";
 import SignupPage from "../pages/Signup/Signup";
 import HomePage from "../pages/Home/Home";
 import Quiz from "../pages/Quiz/Quiz";
+import Leaderboard from "../pages/Leaderboard/Leaderboard";
 import { HomeTabNavigator  } from './TabNavigator';
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -40,7 +41,17 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId, userid }) => {
                 userid={userid}
               />
             )}
-          </Stack.Screen>
+            </Stack.Screen>
+
+            <Stack.Screen name="Leaderboard" options={{ headerShown: false }}>
+            {(props) => (
+                <Leaderboard
+                    {...props}
+                    userid={userid} 
+                />
+            )}
+                        </Stack.Screen>
+
 
             </>
         ) : (

@@ -1,7 +1,7 @@
 // components/ProfilePage.js
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
-import { getCategoryLogData, getAnswerLogCountData, getCategoryList } from '../../firebaseConfig'
+import { getCategoryLogData, getAnswerLogCountData, getCategoryList } from '../../firebaseConfig';
 import { LineChart } from 'react-native-chart-kit';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import dayjs from 'dayjs';
@@ -111,7 +111,6 @@ const ProgressPage = ({ userid }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Your Progress Page</Text>
 
       <View style={styles.streakContainer}>
         <Icon name="fire" size={24} color="#FF4500" />
@@ -165,21 +164,6 @@ const ProgressPage = ({ userid }) => {
         }}
       />
 
-      {/* <View style={styles.categoriesContainer}>
-        {categoriesLog.map((category) => {
-          const { categoryName, correctQuestionCount } = category;
-          // Assuming a fixed number of total questions for simplicity; adjust as needed
-          const totalQuestions = 10; // Example total questions, adjust accordingly
-          const percentageCompleted = totalQuestions === 0 ? 0 : (correctQuestionCount / totalQuestions) * 100;
-          return (
-            <TouchableOpacity key={categoryName} style={styles.categoryButton}>
-              <Text style={styles.categoryText}>{categoryName}</Text>
-              <Text style={styles.percentageText}>{percentageCompleted.toFixed(2)}% Completed</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View> */}
-
 <View style={styles.categoriesContainer}>
         {categories.map((category) => {
           const completionPercentage = categoryCompletion[category.category_id] || 0;
@@ -199,18 +183,14 @@ const ProgressPage = ({ userid }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    // backgroundColor: '#fff',
+
+    backgroundColor: '#E0F7FA',
     alignItems: 'center',
     justifyContent: 'flex-start',
     paddingVertical: 20,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    marginTop: 40, 
-    color: '#0077b6', // Picton Blue
-  },
+  
   streakContainer: {
     flexDirection: 'row',
     alignItems: 'center',

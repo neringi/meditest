@@ -206,6 +206,71 @@ export const getCategoryLogData = async (userid) => {
 }
 
 
+// export const getLeaderboardData = async (userid) => {
+//   try {
+//     const leaderboardRef = collection(db, 'leaderboard');
+//     const leaderboardSnapshot = await getDocs(leaderboardRef);
+    
+//     const leaderboardList = leaderboardSnapshot.docs.map(doc => doc.data());
+
+//     const flattenedData = leaderboardList.flatMap((obj) =>
+//       Object.entries(obj).map(([userId, { score, name }]) => ({ userId, score, name }))
+//     );
+    
+//     return flattenedData;
+//   } catch (error) {
+//     console.error('Error fetching leaderboard data:', error);
+//     return [];
+//   }
+// };
+
+export const getLeaderboardData = async () => {
+  try {
+    const weeklyDocRef = doc(db, 'leaderboard', 'weekly');
+    const dailyDocRef = doc(db, 'leaderboard', 'daily');
+    
+    // Fetch the documents
+    const [weeklySnapshot, dailySnapshot] = await Promise.all([
+      getDoc(weeklyDocRef),
+      getDoc(dailyDocRef)
+    ]);
+
+    // Process the snapshots
+    const weeklyData = weeklySnapshot.exists() ? weeklySnapshot.data() : {};
+    const dailyData = dailySnapshot.exists() ? dailySnapshot.data() : {};
+
+
+    console.log("weekly weeklyData: ", weeklyData);
+    // Convert data to arrays and sort
+    const weeklyLeaderboard = Object.entries(weeklyData)
+    .map(([userId, data]) => ({
+      userId,
+      name: data.name,
+      score: data.score, // Ensure this is treated as a number
+      type: 'weekly'
+    }))
+    .sort((a, b) => b.score - a.score); // Sort by score descending
+
+  const dailyLeaderboard = Object.entries(dailyData)
+    .map(([userId, data]) => ({
+      userId,
+      name: data.name,
+      score: data.score, // Ensure this is treated as a number
+      type: 'daily'
+    }))
+    .sort((a, b) => b.score - a.score); // Sort by score descending
+
+    console.log("weeklyLeaderboard", weeklyLeaderboard);
+    console.log("dailyLeaderboard", dailyLeaderboard);
+
+    return { weeklyLeaderboard, dailyLeaderboard };
+  } catch (error) {
+    console.error('Error fetching leaderboard data:', error);
+    return { weeklyLeaderboard: [], dailyLeaderboard: [] };
+  }
+};
+
+
 export const updateUserExperience = async (userId, level, experiencePoints) => {
   try {
     const userRef = doc(db, 'users', userId);
@@ -247,4 +312,4 @@ const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect, cat
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getCategoryLogData, getAnswerLogCountData, getCategoryList }
+module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getCategoryLogData, getAnswerLogCountData, getCategoryList, getLeaderboardData }
