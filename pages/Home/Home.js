@@ -2,53 +2,50 @@
 import React, { useEffect, useState }  from 'react';
 import { View, Text, TouchableOpacity, Button, StatusBar, StyleSheet } from 'react-native';
 import { logout } from '../../auth_google.js';
-import { doc, getDoc } from "firebase/firestore";
-import { db, updateUserExperience } from '../../firebaseConfig.js';
 import * as Progress from 'react-native-progress';
-import { setUserId } from 'firebase/analytics';
+import { getUserExperience } from '../../firebaseConfig.js';
+import { Dimensions } from 'react-native';
+
+const calculateTotalExperienceForLevel = (level) => {
+  return Math.floor(100 * Math.pow(1.2, level - 1));
+};
 
 
-
-
-
-export default function Home({ route, navigation, loggedIn }) {
-  console.log("HOME", loggedIn)
-  console.log("route", route)
+export default function Home({ route, navigation, loggedIn, userid }) {
+  // console.log("HOME", loggedIn)
+  // console.log("route", route)
   
-  const { userid } = route.params;
+  // const { userid } = route.params;
 
-  console.log('useriduserid at home page',userid)
+  console.log('HOME USERID:', userid)
+
+  const [experience, setExperience] = useState(0);
+  const [level, setLevel] = useState(1);
+  const [experienceToNextLevel, setExperienceToNextLevel] = useState(100);
+
+  // console.log('useriduserid at home page',userid)
   // const [experience, setExperience] = useState(0);
   // const [level, setLevel] = useState(0);
   const [categoryId, setCategoryId] = useState('');
   
 
-  // useEffect(() => {
-  //   console.log("userid in useEffect:", userid);
-  //   const getUserData = async () => {
-  //     try{
-  //       console.log("userid: ",userid)
-  //       const docRef = doc(db, "users", userid);
-  //       const docSnap = await getDoc(docRef);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userExperience = await getUserExperience(userid);
+        const userLevel = userExperience.level || 1;
+        const userExperiencePoints = userExperience.currentExperience || 0;
 
-  //       if (docSnap.exists()) {
-  //         const data = docSnap.data();
-  //         // console.log("Document data:", data);
-  //         const experience = data.experience;
-  //         const level = data.level;
-  //         console.log("Experience:", experience);
-  //         console.log("Level:", level);
-  //       } else {
-  //         // docSnap.data() will be undefined in this case
-  //         console.log("No such document!");
-  //       }
-  //     } catch(err){
-  //       console.error(err);
-  //     }
-  //   };
-  // getUserData();
-  // }, [userid]);
+        setExperience(userExperiencePoints);
+        setLevel(userLevel);
+        setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
+      } catch (err) {
+        console.error('Error fetching user experience:', err);
+      }
+    };
 
+    fetchUserData();
+  }, [userid]);
 
 
   useEffect(() => {
@@ -80,31 +77,33 @@ export default function Home({ route, navigation, loggedIn }) {
     console.log(categoryId)
     navigation.navigate('Quiz', { categoryId: categoryId});
   }
-
-  // const expToNextLevel = 100; 
-  // const progress = experience / expToNextLevel;
-
   
   return (
-    // <View style={styles.container}>
-    //   <TouchableOpacity style={styles.homeButton}>
-    //     <Text style={styles.homeButtonText}>Hi you're logged in, {userid}!</Text>
-    //   </TouchableOpacity>
-    //   {/* <Button title="get data" onPress={getUserData} /> */}
-    //   <Button title="Sign out" onPress={handleLogout} />
-    //   <StatusBar style="auto" />
-    // </View>
-  <View style={styles.container}>
-
-
-  
-    <View style={styles.topBar}>
-          <Text style={styles.levelText}>Level: 1</Text>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Text style={styles.logoutButtonText}>Sign Out</Text>
-          </TouchableOpacity>
-    </View>
-
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#45AEE4" />
+      <View style={styles.topBar}>
+        <View style={styles.infoContainer}>
+          <View style={styles.levelContainer}>
+            <Text style={styles.levelText}>Level: {level}</Text>
+          </View>
+          <View style={styles.experienceContainer}>
+            <Text style={styles.experienceText}>
+              EXP: {experience}/{experienceToNextLevel}
+            </Text>
+            <Progress.Bar
+              progress={experience / experienceToNextLevel}
+              width={Dimensions.get('window').width - 280}
+              height={10}
+              color="#00aeef"
+              borderRadius={10}
+              style={styles.progressBar}
+            />
+          </View>
+        </View>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Text style={styles.logoutButtonText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
 
     <View style={styles.categoryContainer}>
       {/* SURGERY COMMON TERMS EASY*/}
@@ -162,7 +161,7 @@ export default function Home({ route, navigation, loggedIn }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 10,
     backgroundColor: '#E0F7FA',
@@ -173,15 +172,53 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     width: '100%',
     paddingHorizontal: 20,
-    paddingTop: 10, 
-    paddingBottom: 10, 
+    paddingTop: 20, 
+    paddingBottom: 20, 
+    backgroundColor: '#E0F7FA',
+    borderBottomWidth: 1,
+    borderBottomColor: '#45AEE4',
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+  },
+
+  levelContainer: {
+    backgroundColor: '#45AEE4', 
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  levelText: {
+    fontSize: 14, 
+    fontWeight: 'bold',
+    color: '#FFFFFF', 
+  },
+  experienceContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+    marginLeft: 15,
+  },
+  progressBar: {
+    marginTop: 5,
+  },
+  experienceText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#000', 
   },
   logoutButton: {
-    top: 10,
+    // top: 10,
     right: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    backgroundColor: '#d9534f',  // Bootstrap "danger" color
+    backgroundColor: '#d9534f', 
     borderRadius: 5,
     shadowColor: '#000',
     shadowOpacity: 0.3,

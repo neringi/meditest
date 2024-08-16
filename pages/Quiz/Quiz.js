@@ -59,9 +59,14 @@ export default function Quiz({ navigation, route, userid  }) {
               
               const userExperience = await getUserExperience(userid);
               console.log('fetching user exp', userExperience)
-              // don't do { || value } instead properly handle error.
-              setCurrentExperience(userExperience.currentExperience || 0);
-              setLevel(userExperience.level || 1);
+              const userLevel = userExperience.level || 1;
+              const userExperiencePoints = userExperience.currentExperience || 0;
+
+              setCurrentExperience(userExperiencePoints);
+              setLevel(userLevel);
+            
+              const experienceForNextLevel = calculateTotalExperienceForLevel(userLevel);
+              setExperienceToNextLevel(experienceForNextLevel);
             } catch (error) {
               console.error('Error fetching user experience:', error);
             }
@@ -78,12 +83,7 @@ export default function Quiz({ navigation, route, userid  }) {
     };
 
     const handleSubmitAnswer = async () => {
-        // Check if answer correct or not answered (/)
-        // If not correct or not answered display explanation and move forward (/)
-        // If correct 
-        // Increment Answer Counter
-        // Update Experience
-        // Save to firestore
+    
         const currentQuestion = quizData[currentQuestionIndex];
         console.log("HANDLE SUBMIT")
         console.log("Current Question:", currentQuestion);
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f0f4f8',
+        backgroundColor: '#E0F7FA',
     },
     experienceContainer: {
         width: '100%',
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 5, // For Android shadow
+        elevation: 5, 
         textAlign: 'center',
     },
     cardContainer: {
@@ -311,10 +311,10 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 5, // For Android shadow
+        elevation: 5, 
     },
     optionButton: {
-        backgroundColor: '#ddd',
+        backgroundColor: '#d6eaf8',
         padding: 15,
         marginVertical: 8,
         width: '100%',

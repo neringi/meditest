@@ -67,8 +67,8 @@ export const getUserExperience = async (userid) => {
       const userData = userSnap.data();
       return {
         level: userData.level,
-        currentExperience: userData.currentExperience,
-        experienceToNextLevel: userData.experienceToNextLevel
+        currentExperience: userData.currentExperience
+       
       };
     } else {
       console.error("No such user!");
@@ -242,23 +242,23 @@ export const getLeaderboardData = async () => {
 
     console.log("weekly weeklyData: ", weeklyData);
     // Convert data to arrays and sort
-    const weeklyLeaderboard = Object.entries(weeklyData)
-    .map(([userId, data]) => ({
-      userId,
-      name: data.name,
-      score: data.score, // Ensure this is treated as a number
-      type: 'weekly'
-    }))
-    .sort((a, b) => b.score - a.score); // Sort by score descending
+     const weeklyLeaderboard = Object.entries(weeklyData)
+      .map(([userId, data]) => ({
+        userId,
+        name: data.name,
+        score: data.score, // Ensure this is treated as a number
+        type: 'weekly'
+      }))
+      .sort((a, b) => b.score - a.score); // Sort by score descending
 
-  const dailyLeaderboard = Object.entries(dailyData)
-    .map(([userId, data]) => ({
-      userId,
-      name: data.name,
-      score: data.score, // Ensure this is treated as a number
-      type: 'daily'
-    }))
-    .sort((a, b) => b.score - a.score); // Sort by score descending
+    const dailyLeaderboard = Object.entries(dailyData)
+      .map(([userId, data]) => ({
+        userId,
+        name: data.name,
+        score: data.score, // Ensure this is treated as a number
+        type: 'daily'
+      }))
+      .sort((a, b) => b.score - a.score); // Sort by score descending
 
     console.log("weeklyLeaderboard", weeklyLeaderboard);
     console.log("dailyLeaderboard", dailyLeaderboard);

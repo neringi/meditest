@@ -9,7 +9,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const Tab = createBottomTabNavigator();
 
 const HomeWrapper = (props) => {
-  return <Home {...props} userid={props.route.params.userid} setLoggedIn={props.route.params.setLoggedIn} />;
+  return <Home {...props} userid={props.route.params.userid}/>;
 };
 
 const HomeTabNavigator = ({ userid, setLoggedIn }) => (
@@ -21,8 +21,9 @@ const HomeTabNavigator = ({ userid, setLoggedIn }) => (
   >
     <Tab.Screen
       name="Home"
-      component={HomeWrapper}
-      initialParams={{ userid }}
+      // component={HomeWrapper}
+      // initialParams={{ userid }}
+      children={(props) => <Home {...props} userid={userid} />}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="home-outline" size={size} color={color} />

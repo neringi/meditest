@@ -8,7 +8,7 @@ import dayjs from 'dayjs';
 
 const screenWidth = Dimensions.get('window').width;
 
-const ProgressPage = ({ userid }) => {
+const ProgressPage = ({ userid, navigation }) => {
   const [data, setData] = useState([]);
   const [dailyStreak, setDailyStreak] = useState(0);
   const [categoriesLog, setCategoriesLog] = useState([]);
@@ -16,6 +16,11 @@ const ProgressPage = ({ userid }) => {
   const [categories, setCategories] = useState([]);
 
   console.log('progress userid', userid)
+
+  const navigateToLeaderboard = () => {
+    navigation.navigate('Leaderboard');
+  };
+
 
 
   useEffect(() => {
@@ -109,6 +114,24 @@ const ProgressPage = ({ userid }) => {
   const totalData = data.map(item => item.total);
 
 
+
+  const getColorForPercentage = (percentage) => {
+    // Ensure percentage is between 0 and 100
+    percentage = Math.max(0, Math.min(100, percentage));
+    
+    // Interpolate between red (low percentage) and green (high percentage)
+     // Pastel colors are softer; adjust the red and green intensity
+     const paleRed = [255, 160, 160];  // Pale Red
+     const lightGreen = [144, 238, 144]; // Light Green
+   
+     // Interpolate between pale red and light green
+     const r = Math.round(paleRed[0] + (lightGreen[0] - paleRed[0]) * (percentage / 100));
+     const g = Math.round(paleRed[1] + (lightGreen[1] - paleRed[1]) * (percentage / 100));
+     const b = Math.round(paleRed[2] + (lightGreen[2] - paleRed[2]) * (percentage / 100));
+   
+     return `rgb(${r}, ${g}, ${b})`;
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
 
@@ -167,14 +190,23 @@ const ProgressPage = ({ userid }) => {
 <View style={styles.categoriesContainer}>
         {categories.map((category) => {
           const completionPercentage = categoryCompletion[category.category_id] || 0;
+          const color = getColorForPercentage(completionPercentage);
           return (
-            <TouchableOpacity key={category.category_id} style={styles.categoryButton}>
+            <TouchableOpacity
+              key={category.category_id}
+              style={[styles.categoryButton, { backgroundColor: color }]}
+            >
               <Text style={styles.categoryText}>{category.category_name}</Text>
               <Text style={styles.percentageText}>{completionPercentage.toFixed(2)}% Completed</Text>
             </TouchableOpacity>
           );
+
+
         })}
       </View>
+      <TouchableOpacity style={styles.leaderboardButton} onPress={navigateToLeaderboard}>
+        <Text style={styles.leaderboardButtonText}>Go to Leaderboard</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
@@ -228,6 +260,23 @@ const styles = StyleSheet.create({
   percentageText: {
     fontSize: 14,
     color: '#666',
+  },
+  leaderboardButton: {
+    backgroundColor: '#45AEE4',
+    padding: 15,
+    marginVertical: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  leaderboardButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

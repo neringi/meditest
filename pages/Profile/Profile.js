@@ -6,7 +6,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 const ProfilePage = ({ navigation }) => {
 
   const navigateToLeaderboard = () => {
-    navigation.navigate('Leaderboard'); // Ensure your navigation setup has a 'Leaderboard' screen
+    navigation.navigate('Leaderboard');
   };
 
   return (
