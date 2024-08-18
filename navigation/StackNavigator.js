@@ -20,16 +20,12 @@ const StackNavigator = ({ loggedIn, setLoggedIn, categoryId, userid }) => {
         {loggedIn ? (
             <>
             <Stack.Screen name="HomeTabs" options={{ headerShown: false }}>
-              {(props) => (
+              {(props) => 
                 <HomeTabNavigator
                   {...props}
-                  // initialParams={{userid, loggedIn, setLoggedIn, categoryId}}
-                  // loggedIn={loggedIn}
-                  
-                  // categoryId={categoryId}
                   userid={userid}
                 />
-              )}
+              }
             </Stack.Screen>
 
             <Stack.Screen name="Quiz" options={{ headerShown: false }}>

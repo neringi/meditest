@@ -116,15 +116,11 @@ const ProgressPage = ({ userid, navigation }) => {
 
 
   const getColorForPercentage = (percentage) => {
-    // Ensure percentage is between 0 and 100
     percentage = Math.max(0, Math.min(100, percentage));
-    
-    // Interpolate between red (low percentage) and green (high percentage)
-     // Pastel colors are softer; adjust the red and green intensity
-     const paleRed = [255, 160, 160];  // Pale Red
-     const lightGreen = [144, 238, 144]; // Light Green
-   
-     // Interpolate between pale red and light green
+
+     const paleRed = [255, 160, 160]; 
+     const lightGreen = [144, 238, 144]; 
+ 
      const r = Math.round(paleRed[0] + (lightGreen[0] - paleRed[0]) * (percentage / 100));
      const g = Math.round(paleRed[1] + (lightGreen[1] - paleRed[1]) * (percentage / 100));
      const b = Math.round(paleRed[2] + (lightGreen[2] - paleRed[2]) * (percentage / 100));

@@ -11,7 +11,7 @@ export default function SignupPage({ navigation, loggedIn, setLoggedIn, userid }
   
 
   const navigateToHome = (userid = userid) => {
-    console.log("logging in: ", user)
+    // console.log("logging in: ", user)
     navigation.navigate('Home', { userid: userid });
   }
 

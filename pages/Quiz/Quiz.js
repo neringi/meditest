@@ -31,6 +31,7 @@ const calculateTotalExperienceForLevel = (level) => {
 
 export default function Quiz({ navigation, route, userid  }) {
     const { categoryId } = route.params;
+    console.log('QUIZ USERID', userid);
     console.log('user taking quiz', userid)
     const [quizData, setQuizData] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState({});

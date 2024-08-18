@@ -12,10 +12,6 @@ const calculateTotalExperienceForLevel = (level) => {
 
 
 export default function Home({ route, navigation, loggedIn, userid }) {
-  // console.log("HOME", loggedIn)
-  // console.log("route", route)
-  
-  // const { userid } = route.params;
 
   console.log('HOME USERID:', userid)
 
@@ -30,16 +26,29 @@ export default function Home({ route, navigation, loggedIn, userid }) {
   
 
   useEffect(() => {
+
+    if (!userid) {
+      console.error('UserID is not available.');
+      return;
+    } else {
+      console.log("USERID:", userid);
+    }
+
     const fetchUserData = async () => {
       try {
         const userExperience = await getUserExperience(userid);
-        const userLevel = userExperience.level || 1;
-        const userExperiencePoints = userExperience.currentExperience || 0;
-
-        setExperience(userExperiencePoints);
-        setLevel(userLevel);
-        setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
-      } catch (err) {
+        if (userExperience) {
+          const userLevel = userExperience.level || 1;
+          const userExperiencePoints = userExperience.currentExperience || 0;
+  
+          setExperience(userExperiencePoints);
+          setLevel(userLevel);
+          setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
+        } else {
+          console.error('No user experience data found.');
+        }
+      } 
+      catch (err) {
         console.error('Error fetching user experience:', err);
       }
     };

@@ -291,6 +291,26 @@ export const updateUserExperience = async (userId, level, experiencePoints) => {
   }
 };
 
+export const updateUserConsent = async (userId, consent_flag) => {
+  try{
+    const userRef = doc(db, 'users', userId);
+    await runTransaction(db, async (transaction) => {
+      const userDoc = await transaction.get(userRef);
+      
+      if (!userDoc.exists()) {
+        throw new Error("User does not exist!");
+      }
+      transaction.update(userRef, { 
+        consent_flag: consent_flag
+      });
+    });
+    console.log('User data consent updated successfully.');
+  } catch (error) {
+    console.error("Error updating user data consent:", error);
+  }
+};
+
+
 const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect, categoryid) => {
   try {
     const timestamp = new Date();
@@ -312,4 +332,4 @@ const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect, cat
 
 // Initialize Firebase Authentication and get a reference to the service
 // const auth = getAuth(app);
-module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getCategoryLogData, getAnswerLogCountData, getCategoryList, getLeaderboardData }
+module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getCategoryLogData, getAnswerLogCountData, getCategoryList, getLeaderboardData, updateUserConsent }

@@ -12,17 +12,17 @@ const HomeWrapper = (props) => {
   return <Home {...props} userid={props.route.params.userid}/>;
 };
 
-const HomeTabNavigator = ({ userid, setLoggedIn }) => (
+const HomeTabNavigator = ({ props, userid }) => (
   <Tab.Navigator
     screenOptions={{
       tabBarActiveTintColor: 'blue',
       tabBarStyle: [{ display: 'flex' }]
     }}
   >
-    <Tab.Screen
+     <Tab.Screen
       name="Home"
-      // component={HomeWrapper}
-      // initialParams={{ userid }}
+      // component={Progress}
+      initialParams={props}
       children={(props) => <Home {...props} userid={userid} />}
       options={{
         tabBarIcon: ({ color, size }) => (
@@ -43,7 +43,8 @@ const HomeTabNavigator = ({ userid, setLoggedIn }) => (
     />
     <Tab.Screen
       name="Profile"
-      component={Profile}
+      // component={Profile}
+      children={(props) => <Profile {...props} userid={userid} />}
       options={{
         tabBarIcon: ({ color, size }) => (
           <Ionicons name="person" size={size} color={color} />
