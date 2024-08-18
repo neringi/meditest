@@ -12,14 +12,18 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.neringi.meditest"
+      "package": "com.neringi.meditest",
+      "runtimeVersion": "1.0.0"
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -28,6 +32,9 @@
       "eas": {
         "projectId": "daef3db4-fc25-4c9e-a0c3-7a37dee28c4e"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/daef3db4-fc25-4c9e-a0c3-7a37dee28c4e"
     }
   }
 }

@@ -1,8 +1,6 @@
-// SignUp.js
 import React, { useState } from 'react';
 import { StatusBar, View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { register } from '../../auth_google.js';
-import { navigateToHome } from '../Login/Login.js';
 
 export default function SignupPage({ navigation, loggedIn, setLoggedIn, userid }) {
   const [username, setUsername] = useState('');
@@ -18,11 +16,8 @@ export default function SignupPage({ navigation, loggedIn, setLoggedIn, userid }
   
   const handleSignUp = async () => {
 
-    console.log('loggedin?',loggedIn)
-    console.log('creating a user')
-    console.log('username', username)
-    console.log('email', signupEmail)
-    console.log('password', signupPassword)
+    // console.log('loggedin?',loggedIn)
+    // console.log('creating a user')
     await register(username, signupEmail, signupPassword)
     setLoggedIn(true)
     navigateToHome(userid)

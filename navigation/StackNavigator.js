@@ -13,7 +13,7 @@ import { NavigationContainer } from "@react-navigation/native";
 const Stack = createStackNavigator();
 
 const StackNavigator = ({ loggedIn, setLoggedIn, categoryId, userid }) => {
-    console.log("stacknav", loggedIn, userid)
+    // console.log("stacknav", loggedIn, userid)
   return (
 
         <Stack.Navigator>

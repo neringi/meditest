@@ -1,11 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
 import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, getDocs, getFirestore, collection, query, where, addDoc, runTransaction } from "firebase/firestore"; 
-
-
 
 const firebaseConfig = {
     apiKey: "AIzaSyCWK-KEUDln6Ks3rDB1lNIwqsxkAoDXZNI",
@@ -24,7 +20,6 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage)
 });
 
-// const analytics = getAnalytics(app);
 const db = getFirestore(app);
 
 auth.onAuthStateChanged(user => {
@@ -41,7 +36,6 @@ const shuffleArray = (shuffled) => {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
 };
-
 
 export const getQuizData = async (categoryId) => {
   const qs = collection(db, "questions")
@@ -101,10 +95,9 @@ export const getAnswerLogCountData = async (userid) => {
     
     const answerlogList = querySnapshot.docs.map(doc => doc.data());
     
-    // Group and count data by createdDate
     const counts = answerlogList.reduce((acc, item) => {
-      const date = new Date(item.createdDate.seconds * 1000); // Convert Firebase timestamp to Date
-      const dateString = date.toISOString().split('T')[0]; // Extract date part
+      const date = new Date(item.createdDate.seconds * 1000); 
+      const dateString = date.toISOString().split('T')[0]; 
 
       if (!acc[dateString]) {
         acc[dateString] = { total: 0, correct: 0 };
@@ -116,12 +109,12 @@ export const getAnswerLogCountData = async (userid) => {
 
       return acc;
     }, {});
-     // Convert the counts object to an array of { date, total, correct } objects
+     
      const result = Object.keys(counts).map(date => ({
       date,
       total: counts[date].total,
       correct: counts[date].correct,
-    })).sort((a, b) => new Date(a.date) - new Date(b.date)); // Sort by date
+    })).sort((a, b) => new Date(a.date) - new Date(b.date)); 
     
     return result;
   } catch (error) {
@@ -137,7 +130,6 @@ export const getCategoryList = async () => {
 
     const categoryData = {};
 
-    // Iterate through all questions and group by category ID
     querySnapshot.docs.forEach(doc => {
       const data = doc.data();
       const categoryId = data.category_id;
@@ -152,7 +144,6 @@ export const getCategoryList = async () => {
       }
     });
 
-    // Convert the categoryData object to an array of objects
     const categoryList = Object.keys(categoryData).map(categoryId => ({
       category_id: categoryId,
       category_name: categoryData[categoryId].name,
@@ -180,22 +171,19 @@ export const getCategoryLogData = async (userid) => {
         acc[categoryId] = { correctQuestionIds: new Set(), totalQuestions: new Set() };
       }
 
-      // Track unique question IDs for correct answers
       if (item.isCorrect) {
         acc[categoryId].correctQuestionIds.add(questionId);
       }
 
-      // Track total unique question IDs
       acc[categoryId].totalQuestions.add(questionId);
 
       return acc;
     }, {});
 
-    // Convert the counts object to an array of { category_id, correctQuestionCount, totalQuestions } objects
     const result = Object.keys(categoryCounts).map(categoryId => ({
       category_id: categoryId,
-      correctQuestionCount: categoryCounts[categoryId].correctQuestionIds.size, // Count distinct correct answers
-      totalQuestions: categoryCounts[categoryId].totalQuestions.size // Count distinct questions
+      correctQuestionCount: categoryCounts[categoryId].correctQuestionIds.size, 
+      totalQuestions: categoryCounts[categoryId].totalQuestions.size 
     }));
 
     return result;
@@ -205,60 +193,37 @@ export const getCategoryLogData = async (userid) => {
   }
 }
 
-
-// export const getLeaderboardData = async (userid) => {
-//   try {
-//     const leaderboardRef = collection(db, 'leaderboard');
-//     const leaderboardSnapshot = await getDocs(leaderboardRef);
-    
-//     const leaderboardList = leaderboardSnapshot.docs.map(doc => doc.data());
-
-//     const flattenedData = leaderboardList.flatMap((obj) =>
-//       Object.entries(obj).map(([userId, { score, name }]) => ({ userId, score, name }))
-//     );
-    
-//     return flattenedData;
-//   } catch (error) {
-//     console.error('Error fetching leaderboard data:', error);
-//     return [];
-//   }
-// };
-
 export const getLeaderboardData = async () => {
   try {
     const weeklyDocRef = doc(db, 'leaderboard', 'weekly');
     const dailyDocRef = doc(db, 'leaderboard', 'daily');
     
-    // Fetch the documents
     const [weeklySnapshot, dailySnapshot] = await Promise.all([
       getDoc(weeklyDocRef),
       getDoc(dailyDocRef)
     ]);
 
-    // Process the snapshots
     const weeklyData = weeklySnapshot.exists() ? weeklySnapshot.data() : {};
     const dailyData = dailySnapshot.exists() ? dailySnapshot.data() : {};
 
-
-    console.log("weekly weeklyData: ", weeklyData);
-    // Convert data to arrays and sort
+    // console.log("weekly weeklyData: ", weeklyData);
      const weeklyLeaderboard = Object.entries(weeklyData)
       .map(([userId, data]) => ({
         userId,
         name: data.name,
-        score: data.score, // Ensure this is treated as a number
+        score: data.score, 
         type: 'weekly'
       }))
-      .sort((a, b) => b.score - a.score); // Sort by score descending
+      .sort((a, b) => b.score - a.score); 
 
     const dailyLeaderboard = Object.entries(dailyData)
       .map(([userId, data]) => ({
         userId,
         name: data.name,
-        score: data.score, // Ensure this is treated as a number
+        score: data.score, 
         type: 'daily'
       }))
-      .sort((a, b) => b.score - a.score); // Sort by score descending
+      .sort((a, b) => b.score - a.score); 
 
     console.log("weeklyLeaderboard", weeklyLeaderboard);
     console.log("dailyLeaderboard", dailyLeaderboard);
@@ -311,7 +276,7 @@ export const updateUserConsent = async (userId, consent_flag) => {
 };
 
 
-const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect, categoryid) => {
+export const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect, categoryid) => {
   try {
     const timestamp = new Date();
     const logEntry = {
@@ -329,7 +294,4 @@ const addToAnswerLog = async (userid, questionId, selectedOption, isCorrect, cat
   }
 };
 
-
-// Initialize Firebase Authentication and get a reference to the service
-// const auth = getAuth(app);
 module.exports = {app, auth, db, getQuizData, updateUserExperience, addToAnswerLog, getUserExperience, getCategoryLogData, getAnswerLogCountData, getCategoryList, getLeaderboardData, updateUserConsent }

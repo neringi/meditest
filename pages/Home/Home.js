@@ -13,22 +13,18 @@ const calculateTotalExperienceForLevel = (level) => {
 
 export default function Home({ route, navigation, loggedIn, userid }) {
 
-  console.log('HOME USERID:', userid)
+  // console.log('HOME USERID:', userid)
 
   const [experience, setExperience] = useState(0);
   const [level, setLevel] = useState(1);
   const [experienceToNextLevel, setExperienceToNextLevel] = useState(100);
-
-  // console.log('useriduserid at home page',userid)
-  // const [experience, setExperience] = useState(0);
-  // const [level, setLevel] = useState(0);
   const [categoryId, setCategoryId] = useState('');
   
 
   useEffect(() => {
-
+    console.log('use effect home')
     if (!userid) {
-      console.error('UserID is not available.');
+      console.log('UserID is not available.');
       return;
     } else {
       console.log("USERID:", userid);
@@ -54,13 +50,13 @@ export default function Home({ route, navigation, loggedIn, userid }) {
     };
 
     fetchUserData();
-  }, [userid]);
+  }, [userid, experience, level, experienceToNextLevel]);
 
 
   useEffect(() => {
-    console.log('useEffect triggered with categoryId:', categoryId);
+    // console.log('useEffect triggered with categoryId:', categoryId);
     if (categoryId) {
-      console.log('category:', categoryId);
+      // console.log('category:', categoryId);
       navigation.navigate('Quiz', { categoryId: categoryId });
     }
   }, [categoryId, navigation]);
@@ -71,7 +67,7 @@ export default function Home({ route, navigation, loggedIn, userid }) {
       navigation.reset({
         index: 0,
         routes: [{ name: 'Login' }],
-      });  // Navigate to login screen with reset
+      });  
     })
     .catch(error => {
       console.error("Logout failed: ", error);
@@ -80,10 +76,10 @@ export default function Home({ route, navigation, loggedIn, userid }) {
 
 
   const navigateToQuiz = (categoryId) => {
-    console.log("quiz starting...")
-    console.log('setting categoryid', categoryId)
+    // console.log("quiz starting...")
+    // console.log('setting categoryid', categoryId)
     setCategoryId(categoryId);
-    console.log(categoryId)
+    // console.log(categoryId)
     navigation.navigate('Quiz', { categoryId: categoryId});
   }
   
@@ -118,7 +114,6 @@ export default function Home({ route, navigation, loggedIn, userid }) {
       {/* SURGERY COMMON TERMS EASY*/}
       <TouchableOpacity
         style={styles.category}
-        // onPress={() => navigation.navigate('Quiz', {category_id: 'SE'})}
         onPress={() => navigateToQuiz('SE')}
       >
         <Text style={styles.categoryTitle}>Easy Surgery Terms</Text>
@@ -127,7 +122,6 @@ export default function Home({ route, navigation, loggedIn, userid }) {
       {/* SURGERY COMMON TERMS MEDIUM AND DIFFICULT*/}
       <TouchableOpacity
         style={styles.category}
-        // onPress={() => navigation.navigate('Quiz', {category: 'S'})}
         onPress={() => navigateToQuiz('S')}
       >
         <Text style={styles.categoryTitle}>Surgery Terms</Text>
@@ -136,7 +130,6 @@ export default function Home({ route, navigation, loggedIn, userid }) {
       {/* EASY ABBREVIATIONS */}
       <TouchableOpacity
         style={styles.category}
-        // onPress={() => navigation.navigate('Quiz', {category: 'A'})}
         onPress={() => navigateToQuiz('EA')}
       >
         <Text style={styles.categoryTitle}>Easy Abbreviations</Text>
@@ -145,7 +138,6 @@ export default function Home({ route, navigation, loggedIn, userid }) {
        {/* MEDIUM ABBREVIATIONS */}
        <TouchableOpacity
         style={styles.category}
-        // onPress={() => navigation.navigate('Quiz', {category: 'A'})}
         onPress={() => navigateToQuiz('MA')}
       >
         <Text style={styles.categoryTitle}> Abbreviations</Text>
@@ -154,7 +146,6 @@ export default function Home({ route, navigation, loggedIn, userid }) {
       {/* DIFFICULT ABBREVIATIONS */}
       <TouchableOpacity
         style={styles.category}
-        // onPress={() => navigation.navigate('Quiz', {category: 'A'})}
         onPress={() => navigateToQuiz('DA')}
       >
         <Text style={styles.categoryTitle}> Difficult Abbreviations</Text>
@@ -162,8 +153,6 @@ export default function Home({ route, navigation, loggedIn, userid }) {
 
     </View>
 </View>
-
-
 );
 }
 
@@ -223,7 +212,6 @@ const styles = StyleSheet.create({
     color: '#000', 
   },
   logoutButton: {
-    // top: 10,
     right: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,

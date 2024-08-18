@@ -22,9 +22,36 @@ const ProfilePage = ({ navigation, userid }) => {
   const [categoryCompletion, setCategoryCompletion] = useState({});
 
 
-  console.log('PROFILE USERID ',userid );
-  
+  // console.log('PROFILE USERID ',userid );
   useEffect(() => {
+    const getCategoryData = async () => {
+      const categoryLogData = await getCategoryLogData(userid);
+      const allCategories = await getCategoryList();
+      setCategories(allCategories);
+  
+      const categoryMap = allCategories.reduce((acc, category) => {
+        acc[category.category_id] = {
+          name: category.category_name,
+          totalQuestions: category.totalQuestions,
+        };
+        return acc;
+      }, {});
+  
+      const completionMap = allCategories.reduce((acc, category) => {
+        const categoryInfo = categoryLogData.find(cat => cat.category_id === category.category_id);
+        const totalQuestions = category.totalQuestions;
+        const completedQuestions = categoryInfo ? categoryInfo.correctQuestionCount : 0;
+        const percentageCompleted = totalQuestions === 0 ? 0 : (completedQuestions / totalQuestions) * 100;
+        acc[category.category_id] = percentageCompleted;
+        return acc;
+      }, {});
+  
+      setCategoryCompletion(completionMap);  
+    }
+    getCategoryData();
+  }, [categories, categoryCompletion, userid])
+  useEffect(() => {
+    console.log('profile useeffect')
     if (userid) {
       const fetchUserData = async () => {
         try {
@@ -37,32 +64,6 @@ const ProfilePage = ({ navigation, userid }) => {
             setLevel(userLevel);
             setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
           }
-
-          // Fetch category data
-          const categoryLogData = await getCategoryLogData(userid);
-          const allCategories = await getCategoryList();
-          setCategories(allCategories);
-
-          // Map categories to a dictionary for easy lookup
-          const categoryMap = allCategories.reduce((acc, category) => {
-            acc[category.category_id] = {
-              name: category.category_name,
-              totalQuestions: category.totalQuestions,
-            };
-            return acc;
-          }, {});
-
-          // Calculate the completion percentage for each category
-          const completionMap = allCategories.reduce((acc, category) => {
-            const categoryInfo = categoryLogData.find(cat => cat.category_id === category.category_id);
-            const totalQuestions = category.totalQuestions;
-            const completedQuestions = categoryInfo ? categoryInfo.correctQuestionCount : 0;
-            const percentageCompleted = totalQuestions === 0 ? 0 : (completedQuestions / totalQuestions) * 100;
-            acc[category.category_id] = percentageCompleted;
-            return acc;
-          }, {});
-
-          setCategoryCompletion(completionMap);
         } catch (error) {
           console.error('Error fetching user or category data:', error);
         }
@@ -70,11 +71,7 @@ const ProfilePage = ({ navigation, userid }) => {
 
       fetchUserData();
     }
-  }, [userid]);
-
-  const navigateToLeaderboard = () => {
-    navigation.navigate('Leaderboard');
-  };
+  }, [userid, experience, level, experienceToNextLevel]);
 
   const handleLogout = () => {
     logout()
@@ -82,7 +79,7 @@ const ProfilePage = ({ navigation, userid }) => {
         navigation.reset({
           index: 0,
           routes: [{ name: 'Login' }],
-        }); // Navigate to login screen with reset
+        });
       })
       .catch(error => {
         console.error("Logout failed: ", error);
@@ -94,7 +91,6 @@ const ProfilePage = ({ navigation, userid }) => {
     setDataConsent(newConsentValue);
   
     try {
-      // Update the user's document in Firebase
       await updateUserConsent(userid, newConsentValue ? 1 : 0);
     } catch (error) {
       console.error('Error updating data consent:', error);
@@ -109,11 +105,9 @@ const ProfilePage = ({ navigation, userid }) => {
   const getColorForPercentage = (percentage) => {
     percentage = Math.max(0, Math.min(100, percentage));
   
-    // Define color gradients
     const startColor = [255, 160, 160]; // Pale red
     const endColor = [144, 238, 144];   // Light green
   
-    // Interpolate between startColor and endColor based on percentage
     const r = Math.round(startColor[0] + (endColor[0] - startColor[0]) * (percentage / 100));
     const g = Math.round(startColor[1] + (endColor[1] - startColor[1]) * (percentage / 100));
     const b = Math.round(startColor[2] + (endColor[2] - startColor[2]) * (percentage / 100));
@@ -123,6 +117,7 @@ const ProfilePage = ({ navigation, userid }) => {
   
 
   return (
+    // <></>
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.topBar}>
         <View style={styles.infoContainer}>

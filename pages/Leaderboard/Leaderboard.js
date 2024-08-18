@@ -9,7 +9,7 @@ export default function Leaderboard ({ navigation, userid }) {
   const [weeklyData, setWeeklyData] = useState([]);
   const [dailyData, setDailyData] = useState([]);
 
-    console.log('leaderboard userid', userid)
+    // console.log('leaderboard userid', userid)
 
     useEffect(() => {
         const fetchLeaderboardData = async () => {
@@ -19,10 +19,10 @@ export default function Leaderboard ({ navigation, userid }) {
           };
     
         fetchLeaderboardData();
-      }, [userid]);
+      }, [userid, weeklyData, dailyData]);
 
-    console.log('weekly leaderboard: ', weeklyData);
-    console.log('daily leaderboard: ', dailyData);
+    // console.log('weekly leaderboard: ', weeklyData);
+    // console.log('daily leaderboard: ', dailyData);
 
 
     const getTopTen = (data) => data.slice(0, 10);
@@ -80,16 +80,16 @@ export default function Leaderboard ({ navigation, userid }) {
       titleContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center', // Center the title with icons on both sides
-        marginVertical: 30, // Add some vertical spacing
+        justifyContent: 'center', 
+        marginVertical: 30, 
       },
       title: {
         fontSize: 30,
         fontWeight: 'bold',
-        marginHorizontal: 20, // Space between title and icons
-        color: '#4a90e2', // Color of the title text
-        textShadowColor: '#d0d0d0', // Shadow color
-        textShadowOffset: { width: 1, height: 1 }, // Shadow offset
+        marginHorizontal: 20, 
+        color: '#4a90e2',
+        textShadowColor: '#d0d0d0',
+        textShadowOffset: { width: 1, height: 1 },
         textShadowRadius: 5,
       },
       subtitle: {

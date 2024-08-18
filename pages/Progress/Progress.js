@@ -15,24 +15,28 @@ const ProgressPage = ({ userid, navigation }) => {
   const [categoryCompletion, setCategoryCompletion] = useState({});
   const [categories, setCategories] = useState([]);
 
-  console.log('progress userid', userid)
+  // console.log('progress userid', userid)
 
   const navigateToLeaderboard = () => {
     navigation.navigate('Leaderboard');
   };
 
+  useEffect(() => {
+    const getData = async () => {
+      const answerLogData = await getAnswerLogCountData(userid);
+      setData(answerLogData);
+  
+      const streak = calculateDailyStreak(answerLogData);
+      setDailyStreak(streak);  
+    }
+    getData()
 
+  }, [userid, data, dailyStreak])
 
   useEffect(() => {
     if (userid) {
       const fetchAnswerLogData = async () => {
         try {
-          const answerLogData = await getAnswerLogCountData(userid);
-          setData(answerLogData);
-
-          const streak = calculateDailyStreak(answerLogData);
-          setDailyStreak(streak);
-
           const categoryLogData = await getCategoryLogData(userid);
           console.log('categoryLogData', categoryLogData);
           setCategoriesLog(categoryLogData);
@@ -72,7 +76,7 @@ const ProgressPage = ({ userid, navigation }) => {
       fetchAnswerLogData();
       console.log(categoryCompletion)
     }
-    }, [userid]);
+    }, []);
 
   const calculateDailyStreak = (answerLogData) => {
     if (answerLogData.length === 0) return 0;

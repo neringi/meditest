@@ -2,16 +2,11 @@ import { Alert, Button, View, Text, StyleSheet, TouchableOpacity } from 'react-n
 import React, { useState, useEffect } from 'react';
 import { Dimensions } from 'react-native';
 
-// import { firebase } from '../../config';
-import { useNavigation } from '@react-navigation/native';
-// import { createTables, getQuestionsByCategory } from '../../db';
-// import { syncQuestionsFromFirebase } from '../../syncService';
 import { 
     getQuizData, 
     addToAnswerLog, 
     getUserExperience, 
     updateUserExperience
-    /*updateUserExperience,*/ 
 } from '../../firebaseConfig.js'
 import ProgressBar from 'react-native-progress/Bar';
 
@@ -28,11 +23,10 @@ const calculateTotalExperienceForLevel = (level) => {
     return Math.floor(100*Math.pow(1.2, level -1))
 }
 
-
 export default function Quiz({ navigation, route, userid  }) {
     const { categoryId } = route.params;
-    console.log('QUIZ USERID', userid);
-    console.log('user taking quiz', userid)
+    // console.log('QUIZ USERID', userid);
+    // console.log('user taking quiz', userid)
     const [quizData, setQuizData] = useState([]);
     const [selectedOptions, setSelectedOptions] = useState({});
     const [score, setScore] = useState(0);
@@ -46,20 +40,10 @@ export default function Quiz({ navigation, route, userid  }) {
 
     
     useEffect(() => {
-        const fetchQuizData = async () => {
-            try {
-                const data = await getQuizData(categoryId);                 
-                setQuizData(data);
-            } catch (error) {
-                console.error("Error fetching quiz data:", error);
-            }
-        };
-
         const fetchUserExperience = async () => {
             try {
-              
               const userExperience = await getUserExperience(userid);
-              console.log('fetching user exp', userExperience)
+            //   console.log('fetching user exp', userExperience)
               const userLevel = userExperience.level || 1;
               const userExperiencePoints = userExperience.currentExperience || 0;
 
@@ -72,35 +56,45 @@ export default function Quiz({ navigation, route, userid  }) {
               console.error('Error fetching user experience:', error);
             }
           };
-
-
-        fetchQuizData();
         fetchUserExperience();
-    }, [categoryId,userid]);
+    }, []);
+
+    useEffect(() => {
+        const fetchQuizData = async () => {
+            try {
+                const data = await getQuizData(categoryId);                 
+                setQuizData(data);
+            } catch (error) {
+                console.error("Error fetching quiz data:", error);
+            }
+        };
+        fetchQuizData();
+    }, [])
 
     const handleOptionSelect = (option) => {
-        console.log('Option:', option)
+        console.log('==== Option:', option)
         setSelectedOptions(option)
     };
 
     const handleSubmitAnswer = async () => {
     
         const currentQuestion = quizData[currentQuestionIndex];
-        console.log("HANDLE SUBMIT")
-        console.log("Current Question:", currentQuestion);
-        console.log("Selected Options:", selectedOptions);
+        // console.log("HANDLE SUBMIT")
+        // console.log("Current Question:", currentQuestion);
+        // console.log("Selected Options:", selectedOptions);
 
         if (!currentQuestion) {
             console.error("Current question is undefined");
             return;
         }
     
-        if (!selectedOptions) {
+        if (Object.keys(selectedOptions).length === 0) {
             console.error("Selected options is undefined");
             return;
         }
 
         if (selectedOptions.id !== currentQuestion.correct) {
+            console.log("====SAVING OPTION ", selectedOptions)
             await addToAnswerLog(userid, currentQuestion.id, selectedOptions.id, 0,currentQuestion.category_id);
             Alert.alert("Incorrect", currentQuestion.explanation,
                 [{ text: "OK", onPress: () => handleNextQuestion() }]
@@ -142,10 +136,6 @@ export default function Quiz({ navigation, route, userid  }) {
         Alert.alert("Hint", currentQuestion.hint);
         setHintUsed(true);
     };
-
-    const handleLevelUp = () => {
-        Alert.alert("Congratulations!", "You leveled up!");
-      };
 
     const navigateHome = () => {
         navigation.navigate('Home', { userid: userid });
