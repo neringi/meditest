@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import * as Progress from 'react-native-progress';
 import { getUserExperience, getCategoryLogData, getCategoryList, updateUserConsent } from '../../firebaseConfig'; 
 import { logout } from '../../auth_google.js';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -23,11 +24,14 @@ const ProfilePage = ({ navigation, userid }) => {
 
 
   // console.log('PROFILE USERID ',userid );
-  useEffect(() => {
+  useFocusEffect(React.useCallback(() => {
+    let ignore = false
     const getCategoryData = async () => {
       const categoryLogData = await getCategoryLogData(userid);
       const allCategories = await getCategoryList();
-      setCategories(allCategories);
+      if (!ignore) {
+        setCategories(allCategories);
+      }
   
       const categoryMap = allCategories.reduce((acc, category) => {
         acc[category.category_id] = {
@@ -45,13 +49,19 @@ const ProfilePage = ({ navigation, userid }) => {
         acc[category.category_id] = percentageCompleted;
         return acc;
       }, {});
-  
-      setCategoryCompletion(completionMap);  
+      if (!ignore) {
+        setCategoryCompletion(completionMap);  
+      }
     }
     getCategoryData();
-  }, [categories, categoryCompletion, userid])
-  useEffect(() => {
+    return () => {ignore = true}
+  }, [categories, categoryCompletion, userid]))
+  
+  useFocusEffect(
+    React.useCallback(() => {
+    let ignore = false
     console.log('profile useeffect')
+    console.log(`profile ${userid}`)
     if (userid) {
       const fetchUserData = async () => {
         try {
@@ -59,10 +69,11 @@ const ProfilePage = ({ navigation, userid }) => {
           if (userExperience) {
             const userLevel = userExperience.level || 1;
             const userExperiencePoints = userExperience.currentExperience || 0;
-  
-            setExperience(userExperiencePoints);
-            setLevel(userLevel);
-            setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
+            if (!ignore) {
+              setExperience(userExperiencePoints);
+              setLevel(userLevel);
+              setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
+            }
           }
         } catch (error) {
           console.error('Error fetching user or category data:', error);
@@ -70,8 +81,9 @@ const ProfilePage = ({ navigation, userid }) => {
       };
 
       fetchUserData();
+      return () => {ignore = true}
     }
-  }, [userid, experience, level, experienceToNextLevel]);
+  }, [userid, experience, level, experienceToNextLevel]));
 
   const handleLogout = () => {
     logout()

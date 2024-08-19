@@ -12,13 +12,17 @@ export default function Leaderboard ({ navigation, userid }) {
     // console.log('leaderboard userid', userid)
 
     useEffect(() => {
+      let ignore = false
         const fetchLeaderboardData = async () => {
             const { weeklyLeaderboard, dailyLeaderboard } = await getLeaderboardData();
-            setWeeklyData(weeklyLeaderboard);
-            setDailyData(dailyLeaderboard);
+            if (!ignore){
+              setWeeklyData(weeklyLeaderboard);
+              setDailyData(dailyLeaderboard);
+            }
           };
     
         fetchLeaderboardData();
+        return () => {ignore = true}
       }, [userid, weeklyData, dailyData]);
 
     // console.log('weekly leaderboard: ', weeklyData);

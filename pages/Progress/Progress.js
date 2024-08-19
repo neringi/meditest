@@ -22,27 +22,36 @@ const ProgressPage = ({ userid, navigation }) => {
   };
 
   useEffect(() => {
+    let ignore = false
     const getData = async () => {
       const answerLogData = await getAnswerLogCountData(userid);
-      setData(answerLogData);
+      if (!ignore) {
+        setData(answerLogData);
+      }
   
       const streak = calculateDailyStreak(answerLogData);
-      setDailyStreak(streak);  
+      if (!ignore){
+
+        setDailyStreak(streak);  
+      }
     }
     getData()
-
+    return () => {ignore = true}
   }, [userid, data, dailyStreak])
 
   useEffect(() => {
+    let ignore = false
     if (userid) {
       const fetchAnswerLogData = async () => {
         try {
           const categoryLogData = await getCategoryLogData(userid);
           console.log('categoryLogData', categoryLogData);
-          setCategoriesLog(categoryLogData);
-
+          
           const allCategories = await getCategoryList();
-          setCategories(allCategories);
+          if (!ignore){
+            setCategoriesLog(categoryLogData);
+            setCategories(allCategories);
+          }
 
           // Map categories to a dictionary for easy lookup
           const categoryMap = allCategories.reduce((acc, category) => {
@@ -62,8 +71,10 @@ const ProgressPage = ({ userid, navigation }) => {
             acc[category.category_id] = percentageCompleted;
             return acc;
           }, {});
+          if (!ignore){
 
-          setCategoryCompletion(completionMap);
+            setCategoryCompletion(completionMap);
+          }
 
 
           console.log('Category Map:', categoryMap);
@@ -75,6 +86,7 @@ const ProgressPage = ({ userid, navigation }) => {
 
       fetchAnswerLogData();
       console.log(categoryCompletion)
+      return () => {ignore = true}
     }
     }, []);
 

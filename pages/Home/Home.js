@@ -5,6 +5,7 @@ import { logout } from '../../auth_google.js';
 import * as Progress from 'react-native-progress';
 import { getUserExperience } from '../../firebaseConfig.js';
 import { Dimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const calculateTotalExperienceForLevel = (level) => {
   return Math.floor(100 * Math.pow(1.2, level - 1));
@@ -21,36 +22,42 @@ export default function Home({ route, navigation, loggedIn, userid }) {
   const [categoryId, setCategoryId] = useState('');
   
 
-  useEffect(() => {
-    console.log('use effect home')
-    if (!userid) {
-      console.log('UserID is not available.');
-      return;
-    } else {
-      console.log("USERID:", userid);
-    }
-
-    const fetchUserData = async () => {
-      try {
-        const userExperience = await getUserExperience(userid);
-        if (userExperience) {
-          const userLevel = userExperience.level || 1;
-          const userExperiencePoints = userExperience.currentExperience || 0;
-  
-          setExperience(userExperiencePoints);
-          setLevel(userLevel);
-          setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
-        } else {
-          console.error('No user experience data found.');
-        }
-      } 
-      catch (err) {
-        console.error('Error fetching user experience:', err);
+  useFocusEffect(
+    React.useCallback(() =>{
+      let ignore = false;
+      console.log('use effect home')
+      if (!userid) {
+        console.log('UserID is not available.');
+        return () => {ignore = true}
+      } else {
+        console.log("USERID:", userid);
       }
-    };
-
-    fetchUserData();
-  }, [userid, experience, level, experienceToNextLevel]);
+  
+      const fetchUserData = async () => {
+        try {
+          const userExperience = await getUserExperience(userid);
+          if (userExperience) {
+            const userLevel = userExperience.level || 1;
+            const userExperiencePoints = userExperience.currentExperience || 0;
+            if (!ignore){
+              setExperience(userExperiencePoints);
+              setLevel(userLevel);
+              setExperienceToNextLevel(calculateTotalExperienceForLevel(userLevel));
+            }
+          } else {
+            console.error('No user experience data found.');
+          }
+        } 
+        catch (err) {
+          console.error('Error fetching user experience:', err);
+        }
+      };
+  
+      fetchUserData();
+  
+      return () => {ignore = true};
+    }, [userid, experience, level, experienceToNextLevel])
+  );
 
 
   useEffect(() => {

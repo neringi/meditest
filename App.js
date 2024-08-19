@@ -39,7 +39,7 @@ export default function App() {
     };
     importData();
     console.log(userid)
-  }, [loggedIn, userid]);
+  }, []);
 
 
   useEffect(() => {
